@@ -1,0 +1,6 @@
+subdir('./numeric')
+subdir('./examples')
+subdir('./hyper-canny')
+subdir('./misc')
+subdir('./cl-util')
+subdir('./cl-info')
