@@ -4,9 +4,9 @@
 #include <algorithm>
 #include <iostream>
 
-using namespace cl_tutorial;
+using namespace HyperCanny;
 
-std::string cl_tutorial::load_source(std::string const &filename)
+std::string HyperCanny::load_source(std::string const &filename)
 {
     std::ifstream file(filename);
     checkErr(file.is_open() ? CL_SUCCESS : -1,
@@ -19,7 +19,7 @@ std::string cl_tutorial::load_source(std::string const &filename)
     return program;
 }
 
-cl::Program cl_tutorial::get_program_from_file(
+cl::Program HyperCanny::get_program_from_file(
     cl::Context &cx,
     std::vector<cl::Device> const &devices,
     std::string const &filename)
@@ -36,7 +36,7 @@ cl::Program cl_tutorial::get_program_from_file(
     return program;
 }
 
-cl::Program cl_tutorial::get_program_from_sources(
+cl::Program HyperCanny::get_program_from_sources(
     cl::Context &cx,
     std::vector<cl::Device> const &devices,
     std::vector<std::string> const &filenames,

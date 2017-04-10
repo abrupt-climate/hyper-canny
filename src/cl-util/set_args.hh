@@ -1,8 +1,8 @@
 #pragma once
-#include "../base.hh"
+#include "base.hh"
 #include <utility>
 
-namespace cl_tutorial
+namespace HyperCanny
 {
     template <unsigned N>
     void set_args_n(cl::Kernel &k) {}

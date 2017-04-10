@@ -1,10 +1,10 @@
 #include "info.hh"
 
-using namespace cl_tutorial;
+using namespace HyperCanny;
 
 /*! \brief Prints some information on the available OpenCL runtime.
  */
-void cl_tutorial::print_opencl_info(
+void HyperCanny::print_opencl_info(
     std::vector<cl::Platform> const &platform_list)
 {
     console.msg("Number of platforms: ", platform_list.size()).msg();
@@ -13,7 +13,7 @@ void cl_tutorial::print_opencl_info(
     {
         auto const &platform = platform_list[i];
         console
-            .msg("== \033[1mPlatform Nº ", i+1, 
+            .msg("== \033[1mPlatform Nº ", i+1,
 			     "\033[m =========================================================")
             .push("  ")
             .msg("Name:      ", platform.getInfo<CL_PLATFORM_NAME>())

@@ -41,13 +41,13 @@ namespace HyperCanny { namespace numeric
             }
 
             template <unsigned axis>
-            Slice<D> sub(size_t begin, size_t end, size_t step = 1)
+            Slice<D> sub(size_t begin, size_t end, int step = 1)
             {
                 size_t new_offset = offset + begin * stride[axis];
                 stride_t<D> new_stride = stride;
                 shape_t<D> new_shape = shape;
                 new_stride[axis] *= step;
-                new_shape[axis] = (end - begin) / abs(step);
+                new_shape[axis] = (int)(end - begin) / abs(step);
                 return Slice<D>(new_offset, new_shape, new_stride);
             }
 

@@ -1,10 +1,11 @@
 #include "get_gpu_context.hh"
+#include "../base.hh"
 #include <iostream>
 
-using namespace cl_tutorial;
+using namespace HyperCanny;
 
 std::tuple<std::vector<cl::Device>, cl::Context>
-    cl_tutorial::get_default_gpu_context()
+    HyperCanny::get_default_gpu_context()
 {
     console
         .msg("\033[32m☷ \033[m OpenCL initialisation ...")

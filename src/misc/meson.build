@@ -1,1 +1,1 @@
-misc_files = files('./colours.cc',)
+misc_files = files('./colours.cc','./log.cc',)

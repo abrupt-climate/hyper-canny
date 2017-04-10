@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include <png++/png.hpp>
 #include <tuple>
 

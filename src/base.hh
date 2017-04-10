@@ -1,19 +1,16 @@
 #pragma once
 
-#define CL_HPP_MINIMUM_OPENCL_VERSION 100
-#define CL_HPP_TARGET_OPENCL_VERSION  120
-#include <CL/cl2.hpp>
-
 #include <iostream>
 #include <sstream>
 #include <exception>
 #include <chrono>
 #include <utility>
 #include <list>
+#include <vector>
 
 #include "optional.hh"
 
-namespace cl_tutorial
+namespace HyperCanny
 {
     /* generic string utilities ========================================== */
     /*! \brief get the head of a range
@@ -109,12 +106,12 @@ namespace cl_tutorial
         return ss.str();
     }
 
-    class exception: public std::exception
+    class Exception: public std::exception
     {
         std::string msg;
 
         public:
-            exception(std::string const &msg):
+            Exception(std::string const &msg):
                 msg(msg) {}
 
             virtual char const *what() const throw()
@@ -122,7 +119,7 @@ namespace cl_tutorial
                 return msg.c_str();
             }
 
-            virtual ~exception() throw() {}
+            virtual ~Exception() throw() {}
     };
 
     template <typename I>
@@ -148,11 +145,47 @@ namespace cl_tutorial
         }
     }
 
-    class Log
+    class Console
     {
         std::list<std::string> m_indent;
+        static std::unique_ptr<Console> s_instance;
 
         public:
+            class Log
+            {
+                Console &m_console;
+                bool m_popped;
+
+                public:
+                    Log(std::string const &msg,
+                        std::string const &indent = "\033[32m│\033[m   ")
+                        : m_console(Console::get().push(indent))
+                        , m_popped(false)
+                    {
+                        message(msg);
+                    }
+
+                    template <typename ...Args>
+                    void finish(Args &&...args)
+                    {
+                        if (not m_popped)
+                        {
+                            m_console.pop(std::forward<Args>(args)...);
+                            m_popped = true;
+                        }
+                    }
+
+                    ~Log() { finish(); }
+            };
+
+            SubLog sublog(
+                    std::string const &message,
+                    std::string const &indentyy =
+            {
+                msg(message);
+                return SubLog(*this, indent);
+            }
+
             Log &push(std::string const &i)
             {
                 m_indent.push_back(i);
@@ -225,16 +258,5 @@ namespace cl_tutorial
                     .pop("\033[34m┕\033[m stop timer [", msg, "]: ", duration, " ms");
             }
     };
-
-    template <typename ...Args>
-    inline void checkErr(cl_int err, Args &&...args)
-    {
-        if (err != CL_SUCCESS)
-        {
-            std::string msg = format(std::forward<Args>(args)...);
-            console.error(err, msg);
-            throw exception(msg);
-        }
-    }
 }
 

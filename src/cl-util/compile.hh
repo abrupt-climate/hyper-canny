@@ -1,8 +1,8 @@
 #pragma once
-#include "../base.hh"
+#include "base.hh"
 #include <string>
 
-namespace cl_tutorial
+namespace HyperCanny
 {
     extern std::string load_source(std::string const &filename);
 

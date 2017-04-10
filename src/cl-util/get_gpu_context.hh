@@ -1,9 +1,9 @@
 #pragma once
-#include "../base.hh"
+#include "base.hh"
 #include <tuple>
 #include <vector>
 
-namespace cl_tutorial
+namespace HyperCanny
 {
     extern std::tuple<std::vector<cl::Device>, cl::Context> get_default_gpu_context();
 }
