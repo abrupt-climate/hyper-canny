@@ -10,6 +10,7 @@ namespace HyperCanny
     {
         if (err != CL_SUCCESS)
         {
+            Console::Log console;
             std::string msg = format(std::forward<Args>(args)...);
             console.error(err, msg);
             throw Exception(msg);

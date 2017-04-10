@@ -7,9 +7,9 @@ using namespace HyperCanny;
 std::tuple<std::vector<cl::Device>, cl::Context>
     HyperCanny::get_default_gpu_context()
 {
-    console
-        .msg("\033[32m☷ \033[m OpenCL initialisation ...")
-        .push("\033[32m│\033[m  ");
+    Console::Log console(
+        "\033[32m☷ \033[m OpenCL initialisation ...",
+        "\033[32m│\033[m  ");
 
     std::vector<cl::Platform> platform_list;
     cl::Platform::get(&platform_list);
@@ -19,7 +19,7 @@ std::tuple<std::vector<cl::Device>, cl::Context>
         "\n(fail)\n");
 
     cl::Platform default_platform = platform_list[0];
-    console.msg(
+    console.message(
         "Using platform: ",
         default_platform.getInfo<CL_PLATFORM_NAME>());
 
@@ -31,12 +31,12 @@ std::tuple<std::vector<cl::Device>, cl::Context>
         "\n(fail)\n");
 
     cl::Device default_device = device_list[0];
-    console.msg(
+    console.message(
         "Using device:   ",
         default_device.getInfo<CL_DEVICE_NAME>());
 
-    console
-        .pop("\033[32m┕\033[m (ok)");
+    console.finish("\033[32m┕\033[m (ok)");
+
     cl::Context context({default_device});
     return std::make_tuple(device_list, context);
 }

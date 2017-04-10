@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <iostream>
 #include <sstream>
 #include <exception>
@@ -157,13 +158,19 @@ namespace HyperCanny
                 bool m_popped;
 
                 public:
+                    Log()
+                        : m_console(Console::get())
+                        , m_popped(true)
+                    {}
+
                     Log(std::string const &msg,
                         std::string const &indent = "\033[32m│\033[m   ")
-                        : m_console(Console::get().push(indent))
+                        : m_console(Console::get().message(msg).push(indent))
                         , m_popped(false)
-                    {
-                        message(msg);
-                    }
+                    {}
+
+                    Log(Log const &other) = delete;
+                    Log &operator=(Log const &other) = delete;
 
                     template <typename ...Args>
                     void finish(Args &&...args)
@@ -175,60 +182,84 @@ namespace HyperCanny
                         }
                     }
 
-                    ~Log() { finish(); }
+                    template <typename ...Args>
+                    Log &msg(Args &&...args)
+                    {
+                        m_console.message(std::forward<Args>(args)...);
+                        return *this;
+                    }
+
+                    template <typename ...Args>
+                    Log &message(Args &&...args)
+                    {
+                        m_console.message(std::forward<Args>(args)...);
+                        return *this;
+                    }
+
+                    template <typename ...Args>
+                    Log &error(Args &&...args)
+                    {
+                        std::string m = format(std::forward<Args>(args)...);
+                        m_console.push("\033[1;31m[error]\033[m ");
+
+                        std::vector<std::string> lines;
+                        split(m, '\n', std::back_inserter(lines));
+                        for (std::string const &l : lines)
+                        {
+                            message(l);
+                        }
+
+                        m_console.pop();
+                        return *this;
+                    }
+
+                    Log &endl()
+                    {
+                        return message();
+                    }
+
+                    ~Log()
+                    {
+                        finish();
+                    }
             };
 
-            SubLog sublog(
-                    std::string const &message,
-                    std::string const &indentyy =
+            static Console &get()
             {
-                msg(message);
-                return SubLog(*this, indent);
+                if (not s_instance)
+                {
+                    s_instance.reset(new Console);
+                }
+
+                return *s_instance;
             }
 
-            Log &push(std::string const &i)
+            Console &push(std::string const &i)
             {
                 m_indent.push_back(i);
                 return *this;
             }
 
             template <typename ...Args>
-            Log &pop(Args &&...args)
+            Console &pop(Args &&...args)
             {
                 m_indent.pop_back();
                 std::string m = format(std::forward<Args>(args)...);
                 if (m != "")
-                    msg(m);
-                msg();
+                    message(m);
+                message();
                 return *this;
             }
 
             template <typename ...Args>
-            Log &msg(Args &&...args)
+            Console &message(Args &&...args)
             {
                 for (std::string const &i : m_indent)
                     std::cerr << i;
                 std::cerr << format(std::forward<Args>(args)...) << std::endl;
                 return *this;
             }
-
-            template <typename ...Args>
-            Log &error(Args &&...args)
-            {
-                std::string m = format(std::forward<Args>(args)...);
-                push("\033[1;31m[error]\033[m ");
-                std::vector<std::string> lines;
-                split(m, '\n', std::back_inserter(lines));
-                for (std::string const &l : lines)
-                {
-                    msg(l);
-                }
-                pop();
-                return *this;
-            }
     };
-
-    extern Log console;
 
     class Timer
     {
@@ -238,15 +269,17 @@ namespace HyperCanny
         clock::time_point t1;
         std::string msg;
 
+        std::unique_ptr<Console::Log> log;
+
         public:
             Timer() = default;
 
             void start(std::string const &msg_)
             {
                 msg = msg_;
-                console
-                    .msg("\033[34;1m⏲ \033[m start timer [", msg, "]")
-                    .push("\033[34m│\033[m   ");
+                log = std::make_unique<Console::Log>(
+                    format("\033[34;1m⏲ \033[m start timer [", msg, "]"),
+                    "\033[34m│\033[m   ");
                 t1 = clock::now();
             }
 
@@ -254,8 +287,7 @@ namespace HyperCanny
             {
                 clock::time_point t2 = clock::now();
                 double duration = std::chrono::duration<double, std::milli>(t2 - t1).count();
-                console
-                    .pop("\033[34m┕\033[m stop timer [", msg, "]: ", duration, " ms");
+                log->finish("\033[34m┕\033[m stop timer [", msg, "]: ", duration, " ms");
             }
     };
 }

@@ -2,5 +2,5 @@
 
 using namespace HyperCanny;
 
-Log HyperCanny::console;
+std::unique_ptr<Console> Console::s_instance;
 

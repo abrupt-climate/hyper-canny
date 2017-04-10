@@ -8,7 +8,8 @@ using namespace HyperCanny;
 
 void convert_hdf5_to_png()
 {
-    auto subcon = console.sublog("Converting HDF5 floating point data to a PNG image.");
+    Console::Log console("Converting HDF5 floating point data to a PNG image.");
+
     console.msg("Opening ./data/test/cute.hdf5 ...");
     H5::H5File f("./data/test/cute.hdf5", H5F_ACC_RDONLY);
     H5::DataSet dataset = f.openDataSet("image");
@@ -17,11 +18,13 @@ void convert_hdf5_to_png()
     if (type_class != H5T_FLOAT)
         throw Exception("Expected a field with floating-point values.");
 
-    subcon.finish("Done");
+    console.finish("Done");
 }
 
 int main(int argc, char **argv)
 {
+    Console::Log console;
+
     try
     {
         convert_hdf5_to_png();

@@ -24,6 +24,8 @@ cl::Program HyperCanny::get_program_from_file(
     std::vector<cl::Device> const &devices,
     std::string const &filename)
 {
+    Console::Log console;
+
     console.msg("Compiling ", filename, " ...");
     cl::Program::Sources sources;
     sources.push_back(load_source(filename));
@@ -42,6 +44,8 @@ cl::Program HyperCanny::get_program_from_sources(
     std::vector<std::string> const &filenames,
     std::string const &compiler_args)
 {
+    Console::Log console;
+
     console.msg("Compiling kernels ... ");
     cl::Program::Sources sources;
     std::transform(filenames.begin(), filenames.end(),
