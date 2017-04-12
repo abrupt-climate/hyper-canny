@@ -4,7 +4,8 @@
 #include "slice.hh"
 #include <vector>
 
-namespace HyperCanny { namespace numeric
+namespace HyperCanny {
+namespace numeric
 {
     template <typename T, unsigned D>
     class NdIterator: public std::iterator<std::forward_iterator_tag, T>
@@ -73,10 +74,14 @@ namespace HyperCanny { namespace numeric
 
             Slice<D> const &slice() const { return slice_; }
             shape_t<D> const &shape() const { return slice_.shape; }
+            size_t shape(unsigned i) const { return slice_.shape[i]; }
+
             size_t size() const { return slice_.size; }
 
             iterator begin() { return iterator(data(), slice_.begin()); }
             iterator end() { return iterator(data(), slice_.end()); }
+            const_iterator begin() const { return const_iterator(data(), slice_.begin()); }
+            const_iterator end() const { return const_iterator(data(), slice_.end()); }
             const_iterator cbegin() const { return const_iterator(data(), slice_.begin()); }
             const_iterator cend() const { return const_iterator(data(), slice_.end()); }
 
@@ -121,6 +126,8 @@ namespace HyperCanny { namespace numeric
         std::vector<T> data_;
 
         public:
+            using View = typename NdArrayBase<T,D>::View;
+
             NdArray(shape_t<D> const &shape):
                 NdArrayBase<T, D>(shape),
                 data_(calc_size<D>(shape))
@@ -130,6 +137,13 @@ namespace HyperCanny { namespace numeric
                 NdArrayBase<T, D>(shape),
                 data_(calc_size<D>(shape), value)
             {}
+
+            template <typename U>
+            NdArray(NdArray<U,D> const &other):
+                NdArray(other.shape())
+            {
+                std::copy(other.begin(), other.end(), this->begin());
+            }
 
             T &operator[](size_t i) { return data_[i]; }
             T const &operator[](size_t i) const { return data_[i]; }
@@ -155,5 +169,5 @@ namespace HyperCanny { namespace numeric
             View &operator=(View const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
             View &operator=(NdArray<T, D> const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
     };
-}}
+}} // namespace HyperCanny::numeric
 
