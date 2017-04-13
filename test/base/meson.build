@@ -1,1 +1,1 @@
-test_base_files = files('./string-split.cc',)
+test_base_files = files('./strings.cc',)

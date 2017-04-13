@@ -72,5 +72,12 @@ test_base = executable('test-base', src_misc_files, test_base_files,
     link_args: ['-lpthread'],
     include_directories: [local_include, gtest_include])
 
+test_numeric = executable('test-numeric', src_misc_files, test_numeric_files,
+    cpp_args: ['-std=c++14'],
+    link_with: [gtest_static],
+    link_args: ['-lpthread'],
+    include_directories: [local_include, gtest_include])
+
 test('base system', test_base)
+test('numeric system', test_numeric)
 
