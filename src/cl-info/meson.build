@@ -1,1 +1,1 @@
-cl_info_files = files('./main.cc',)
+src_cl_info_files = files('./main.cc',)

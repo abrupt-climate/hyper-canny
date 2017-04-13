@@ -124,7 +124,7 @@ namespace HyperCanny
     };
 
     template <typename I>
-    void split(std::string const &s, char d, I inserter)
+    void string_split(std::string const &s, char d, I inserter)
     {
         size_t p, q = 0;
         while (q < s.length())
@@ -203,7 +203,7 @@ namespace HyperCanny
                         m_console.push("\033[1;31m[error]\033[m ");
 
                         std::vector<std::string> lines;
-                        split(m, '\n', std::back_inserter(lines));
+                        string_split(m, '\n', std::back_inserter(lines));
                         for (std::string const &l : lines)
                         {
                             message(l);
@@ -217,10 +217,10 @@ namespace HyperCanny
                     Log &warning(Args &&...args)
                     {
                         std::string m = format(std::forward<Args>(args)...);
-                        m_console.push("\033[1;33m[warning]\033[m ");
+                        m_console.push("\033[33m[warning]\033[m ");
 
                         std::vector<std::string> lines;
-                        split(m, '\n', std::back_inserter(lines));
+                        string_split(m, '\n', std::back_inserter(lines));
                         for (std::string const &l : lines)
                         {
                             message(l);

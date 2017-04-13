@@ -1,1 +1,1 @@
-numeric_files = files('./hilbert.cc',)
+src_numeric_files = files('./hilbert.cc',)

@@ -1,0 +1,1 @@
+gtest_src_files = files('./gtest-port.cc','./gtest-typed-test.cc','./gtest-all.cc','./gtest.cc','./gtest-death-test.cc','./gtest-test-part.cc','./gtest-printers.cc','./gtest-filepath.cc','./gtest_main.cc',)
