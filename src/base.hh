@@ -213,6 +213,23 @@ namespace HyperCanny
                         return *this;
                     }
 
+                    template <typename ...Args>
+                    Log &warning(Args &&...args)
+                    {
+                        std::string m = format(std::forward<Args>(args)...);
+                        m_console.push("\033[1;33m[warning]\033[m ");
+
+                        std::vector<std::string> lines;
+                        split(m, '\n', std::back_inserter(lines));
+                        for (std::string const &l : lines)
+                        {
+                            message(l);
+                        }
+
+                        m_console.pop();
+                        return *this;
+                    }
+
                     Log &endl()
                     {
                         return message();
@@ -247,7 +264,7 @@ namespace HyperCanny
                 std::string m = format(std::forward<Args>(args)...);
                 if (m != "")
                     message(m);
-                message();
+                // message();
                 return *this;
             }
 
