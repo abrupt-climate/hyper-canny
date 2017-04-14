@@ -22,6 +22,32 @@
 
 namespace HyperCanny
 {
+    class CaptureOutput: public std::ostringstream
+    {
+        std::ostream &stream;
+        std::streambuf *buffer;
+        bool restored;
+
+        public:
+            CaptureOutput(std::ostream &s)
+                : std::ostringstream()
+                , stream(s)
+                , buffer(s.rdbuf(this->rdbuf()))
+                , restored(false)
+            {}
+
+            void restore()
+            {
+                stream.rdbuf(buffer);
+                restored = true;
+            }
+
+            ~CaptureOutput()
+            {
+                if (not restored) restore();
+            }
+    };
+
     class Exception: public std::exception
     {
         std::string msg;

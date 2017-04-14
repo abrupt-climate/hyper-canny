@@ -17,6 +17,7 @@
 #include <vector>
 #include <memory>
 #include <list>
+#include <iostream>
 
 namespace HyperCanny
 {
@@ -24,6 +25,10 @@ namespace HyperCanny
     {
         std::list<std::string> m_indent;
         static std::unique_ptr<Console> s_instance;
+
+        Console()
+        {
+        }
 
         public:
             class Log;
@@ -36,6 +41,11 @@ namespace HyperCanny
                 }
 
                 return *s_instance;
+            }
+
+            static std::streambuf *redirect(std::ostream &out)
+            {
+                return out.rdbuf(std::clog.rdbuf());
             }
 
             Console &push(std::string const &i)
@@ -59,8 +69,8 @@ namespace HyperCanny
             Console &message(Args &&...args)
             {
                 for (std::string const &i : m_indent)
-                    std::cerr << i;
-                std::cerr << format(std::forward<Args>(args)...) << std::endl;
+                    std::clog << i;
+                std::clog << format(std::forward<Args>(args)...) << std::endl;
                 return *this;
             }
     };

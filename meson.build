@@ -61,8 +61,10 @@ executable('examples/netcdf-test', src_numeric_files, src_base_files,
     include_directories: local_include)
 
 # ======== [[ Unit testing ]] =================================================
-gtest_include = include_directories('./test/gtest/include', './test/gtest')
-gtest_static = static_library('gtest', gtest_src_files,
+gtest_include = include_directories(
+    './test/gtest/include', './test/gmock/include',
+    './test/gtest', './test/gmock')
+gtest_static = static_library('gtest', gtest_src_files, gmock_src_files,
     cpp_args: ['-std=c++14'],
     include_directories: gtest_include)
 
@@ -72,10 +74,12 @@ test_base = executable('test-base', src_base_files, test_base_files,
     link_args: ['-lpthread'],
     include_directories: [local_include, gtest_include])
 
-test_numeric = executable('test-numeric', src_base_files, test_numeric_files,
+test_numeric = executable('test-numeric',
+    src_base_files, src_numeric_files, test_numeric_files,
     cpp_args: ['-std=c++14'],
+    dependencies: [netcdf_dep],
     link_with: [gtest_static],
-    link_args: ['-lpthread'],
+    link_args: ['-lpthread', '-lstdc++fs'],
     include_directories: [local_include, gtest_include])
 
 test('base system', test_base)
