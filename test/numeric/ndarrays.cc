@@ -48,11 +48,17 @@ TEST (NdArray, Assignment)
     using numeric::NdArray;
 
     NdArray<int,2> a1({4, 4}, 0);
-    a1.sub<0>(0, 4, 2).sub<1>(0, 4, 2) = 1;
 
+    a1.sub<0>(0, 4, 2).sub<1>(0, 4, 2) = 1;
     NdArray<int,2> b1({4, 4}, {
             1, 0, 1, 0, 0, 0, 0, 0,
             1, 0, 1, 0, 0, 0, 0, 0});
     ASSERT_EQ(a1, b1);
+
+    a1.sub<1>(0, 4, 3) += 2;
+    NdArray<int,2> b2({4, 4}, {
+            3, 2, 3, 2, 0, 0, 0, 0,
+            1, 0, 1, 0, 2, 2, 2, 2});
+    ASSERT_EQ(a1, b2);
 }
 
