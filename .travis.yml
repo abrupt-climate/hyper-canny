@@ -1,22 +1,10 @@
 language: cpp
-matrix:
-  include:
-    - os: linux
-      env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
-      addons:
-        apt:
-          packages:
-            - g++-5
-            - ninja-build
-            - python3
-            - libpng12-dev
-            - mesa-opencl-icd
-            - ocl-icd-opencl-dev
-            - opencl-headers
-            - libnetcdf-c++4-dev
-            - libhdf5-dev
+sudo: required
+services:
+  - docker
 before_install:
-  - sudo pip3 install meson
+  - docker build -t hyper-canny .
+  - docker run -i -t hyper-canny
 script:
   - meson build
   - cd build && ninja && ninja test
