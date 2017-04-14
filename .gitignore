@@ -12,3 +12,5 @@ doc/**/*.log
 doc/**/*.out
 doc/**/_*
 
+data/test
+

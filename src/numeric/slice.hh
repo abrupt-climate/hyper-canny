@@ -15,8 +15,7 @@ namespace HyperCanny { namespace numeric
                 offset(0), size(calc_size<D>(shape)),
                 shape(shape),
                 stride(calc_stride<D>(shape))
-            {
-            }
+            {}
 
             Slice(size_t offset, shape_t<D> const &shape, stride_t<D> const &stride):
                 offset(offset), size(calc_size<D>(shape)),
@@ -47,8 +46,17 @@ namespace HyperCanny { namespace numeric
                 stride_t<D> new_stride = stride;
                 shape_t<D> new_shape = shape;
                 new_stride[axis] *= step;
-                new_shape[axis] = (int)(end - begin) / abs(step);
+                new_shape[axis] = (int)(end - begin + step - 1) / abs(step);
                 return Slice<D>(new_offset, new_shape, new_stride);
+            }
+
+            template <unsigned axis>
+            Slice<D-1> sel(size_t idx)
+            {
+                size_t new_offset = offset + idx * stride[axis];
+                stride_t<D-1> new_stride = reduce_one<D, axis>(stride);
+                shape_t<D-1> new_shape = reduce_one<D, axis>(shape);
+                return Slice<D-1>(new_offset, new_shape, new_stride);
             }
 
             template <unsigned axis>
@@ -70,5 +78,13 @@ namespace HyperCanny { namespace numeric
                 return NdRange<D>();
             }
     };
+
+    template <>
+    class Slice<0>
+    {
+        Slice(shape_t<0> const &) {}
+        Slice(size_t offset, shape_t<0> const &, stride_t<0> const &) {}
+    };
+
 }} // namespace numeric
 

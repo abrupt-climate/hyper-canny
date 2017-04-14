@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace Misc
+namespace HyperCanny
 {
     inline void format_to(std::ostream &out) {}
 

@@ -1,4 +1,4 @@
-#include "../base.hh"
+#include "console.hh"
 
 using namespace HyperCanny;
 

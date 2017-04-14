@@ -1,0 +1,10 @@
+language: generic
+branches:
+  only:
+    - master
+services:
+  - docker
+before_install:
+  - docker build -t hyper-canny .
+script:
+  - docker run -t hyper-canny /bin/bash -c 'meson build && cd build && ninja test'
