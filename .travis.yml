@@ -1,10 +1,21 @@
 language: cpp
+matrix:
+  include:
+    - os: linux
+      env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
+      addons:
+        apt:
+          packages:
+            - g++-5
+            - ninja-build
+            - python3
+            - libpng12-dev
+            - mesa-opencl-icd
+            - ocl-icd-opencl-dev
+            - opencl-headers
+            - libnetcdf-c++4-dev
+            - libhdf5-dev
 before_install:
-  - sudo apt-get install ninja-build python3 -y
-  - sudo apt-get install libpng12-dev -y
-  - sudo apt-get install libpocl-dev ocl-icd-opencl-dev opencl-headers -y
-  - sudo apt-get install libnetcdf-c++4-dev -y
-  - sudo apt-get install libhdf5-dev -y
   - sudo pip3 install meson
 script:
   - meson build
