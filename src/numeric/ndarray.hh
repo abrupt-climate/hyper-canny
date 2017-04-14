@@ -65,13 +65,16 @@ namespace numeric
     template <typename T, unsigned D>
     class NdArrayBase
     {
-        Slice<D> slice_;
+        protected:
+            Slice<D> slice_;
 
         public:
             class View;
 
             using iterator = NdIterator<T, D>;
             using const_iterator = NdConstIterator<T, D>;
+
+            NdArrayBase() {}
 
             NdArrayBase(shape_t<D> const &shape):
                 slice_(shape)
@@ -124,7 +127,8 @@ namespace numeric
                 return *this;
             }
 
-            NdArrayBase &operator=(NdArrayBase const &other)
+            template <typename T2>
+            NdArrayBase &operator=(NdArrayBase<T2,D> const &other)
             {
                 if (shape() != other.shape())
                     throw "shapes of arrays do not match.";
@@ -163,6 +167,7 @@ namespace numeric
 
         public:
             using View = typename NdArrayBase<T,D>::View;
+            NdArray() {}
 
             NdArray(shape_t<D> const &shape):
                 NdArrayBase<T, D>(shape),
@@ -185,6 +190,12 @@ namespace numeric
                 NdArray(other.shape())
             {
                 std::copy(other.begin(), other.end(), this->begin());
+            }
+
+            void resize(shape_t<D> shape)
+            {
+                this->slice_ = Slice<D>(shape);
+                data_.resize(this->slice_.size);
             }
 
             T &operator[](size_t i) { return data_[i]; }

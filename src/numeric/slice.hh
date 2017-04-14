@@ -25,6 +25,8 @@ namespace HyperCanny { namespace numeric
             shape_t<D> shape;
             stride_t<D> stride;
 
+            Slice() {}
+
             Slice(shape_t<D> const &shape):
                 offset(0), size(calc_size<D>(shape)),
                 shape(shape),
