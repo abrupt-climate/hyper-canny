@@ -4,7 +4,5 @@ services:
   - docker
 before_install:
   - docker build -t hyper-canny .
-  - docker run -i -t hyper-canny
 script:
-  - meson build
-  - cd build && ninja && ninja test
+  - docker run -t hyper-canny /bin/bash -c 'meson build && cd build && ninja test'
