@@ -83,11 +83,13 @@ namespace HyperCanny
     template <typename R>
     std::string string_join(R const &r, std::string const &d)
     {
-        std::string a = head(r);
-        for (auto b : tail(r))
-            a += d + b;
+        std::ostringstream out;
 
-        return a;
+        out << head(r);
+        for (auto b : tail(r))
+            out << d <<  b;
+
+        return out.str();
     }
 
     inline void format_to(std::ostream &out) {}

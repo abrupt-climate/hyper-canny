@@ -25,5 +25,20 @@ namespace HyperCanny { namespace numeric
             size *= shape[i];
         return size;
     }
+
+    template <unsigned D, unsigned I, typename T>
+    inline std::array<T,D-1> reduce_one(std::array<T,D> const &x)
+    {
+        std::array<T,D-1> result;
+        for (unsigned j = 0, k = 0; j < D; ++j)
+        {
+            if (j != I)
+            {
+                result[k] = x[j];
+                ++k;
+            }
+        }
+        return result;
+    }
 }}
 

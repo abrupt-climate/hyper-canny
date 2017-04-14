@@ -3,6 +3,7 @@
 #include "support.hh"
 #include "slice.hh"
 #include <vector>
+#include <initializer_list>
 
 namespace HyperCanny {
 namespace numeric
@@ -90,9 +91,14 @@ namespace numeric
                 { return View(slice_.reverse<axis>(), data()); }
             View transpose()
                 { return View(slice_.transpose(), data()); }
+
             template <unsigned axis>
             View sub(size_t begin, size_t end, size_t step = 1)
                 { return View(slice_.sub<axis>(begin, end, step), data()); }
+
+            template <unsigned axis>
+            typename NdArrayBase<T,D-1>::View sel(size_t idx)
+                { return typename NdArrayBase<T,D-1>::View(slice_.sel<axis>(idx), data()); }
 
             virtual T *data() = 0;
             virtual T const *data() const = 0;
@@ -110,6 +116,22 @@ namespace numeric
                     throw "shapes of arrays do not match.";
                 std::copy(other.cbegin(), other.cend(), begin());
                 return *this;
+            }
+
+            NdArrayBase &operator=(T value)
+            {
+                std::fill(begin(), end(), value);
+                return *this;
+            }
+
+            bool operator==(NdArrayBase const &other) const
+            {
+                return (shape() == other.shape()) & std::equal(begin(), end(), other.begin());
+            }
+
+            bool operator!=(NdArrayBase const &other) const
+            {
+                return (shape() != other.shape()) | !std::equal(begin(), end(), other.begin());
             }
     };
 
@@ -138,6 +160,12 @@ namespace numeric
                 data_(calc_size<D>(shape), value)
             {}
 
+            NdArray(shape_t<D> const &shape, std::initializer_list<T> const &init)
+                : NdArray(shape)
+            {
+                std::copy(init.begin(), init.end(), this->begin());
+            }
+
             template <typename U>
             NdArray(NdArray<U,D> const &other):
                 NdArray(other.shape())
@@ -158,7 +186,7 @@ namespace numeric
         T *data_;
 
         public:
-            View(Slice<D> slice, T *data):
+            View(Slice<D> const &slice, T *data):
                 NdArrayBase<T, D>(slice),
                 data_(data)
             {}
@@ -168,6 +196,18 @@ namespace numeric
 
             View &operator=(View const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
             View &operator=(NdArray<T, D> const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
+            View &operator=(T value) { NdArrayBase<T, D>::operator=(value); return *this; }
     };
+
+    template <typename T>
+    class NdArrayBase<T,0>
+    {
+        public:
+            class View {
+                public:
+                    View(Slice<0> const &, T *data) {}
+            };
+    };
+
 }} // namespace HyperCanny::numeric
 
