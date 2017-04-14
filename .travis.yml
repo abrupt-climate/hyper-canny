@@ -1,5 +1,7 @@
-language: cpp
-sudo: required
+language: generic
+branches:
+  only:
+    - master
 services:
   - docker
 before_install:
