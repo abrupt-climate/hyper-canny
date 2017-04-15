@@ -25,9 +25,7 @@ class NetCDFTest: public ::testing::Test
         }
 
         virtual void TearDown()
-        {
-            std::experimental::filesystem::remove("./data/test/netcdf-test.nc");
-        }
+        {}
 
         NdArray<int, 2> data;
 };
@@ -61,6 +59,8 @@ TEST_F (NetCDFTest, ReadingAndWriting)
         });
 
         ASSERT_TRUE(eq) << "array read from file does not match original.";
+
+        std::experimental::filesystem::remove("./data/test/netcdf-test.nc");
     }
 }
 

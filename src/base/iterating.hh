@@ -34,7 +34,7 @@ namespace HyperCanny
             typedef typename T::value_type value_type;
             typedef typename T::const_iterator const_iterator;
 
-            Tail(T const &a):
+            explicit Tail(T const &a):
                 b(a.begin()), e(a.end())
             {
                 ++b;

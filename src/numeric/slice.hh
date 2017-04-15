@@ -27,7 +27,7 @@ namespace HyperCanny { namespace numeric
 
             Slice() {}
 
-            Slice(shape_t<D> const &shape):
+            explicit Slice(shape_t<D> const &shape):
                 offset(0), size(calc_size<D>(shape)),
                 shape(shape),
                 stride(calc_stride<D>(shape))
@@ -98,8 +98,8 @@ namespace HyperCanny { namespace numeric
     template <>
     class Slice<0>
     {
-        Slice(shape_t<0> const &) {}
-        Slice(size_t offset, shape_t<0> const &, stride_t<0> const &) {}
+        // Slice(shape_t<0> const &) {}
+        // Slice(size_t offset, shape_t<0> const &, stride_t<0> const &) {}
     };
 
 }} // namespace numeric

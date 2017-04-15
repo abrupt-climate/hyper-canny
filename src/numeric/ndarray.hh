@@ -76,7 +76,7 @@ namespace numeric
 
             NdArrayBase() {}
 
-            NdArrayBase(shape_t<D> const &shape):
+            explicit NdArrayBase(shape_t<D> const &shape):
                 slice_(shape)
             {}
 
@@ -84,7 +84,7 @@ namespace numeric
                 slice_(offset, shape, stride)
             {}
 
-            NdArrayBase(Slice<D> const &slice):
+            explicit NdArrayBase(Slice<D> const &slice):
                 slice_(slice)
             {}
 
@@ -144,12 +144,12 @@ namespace numeric
 
             bool operator==(NdArrayBase const &other) const
             {
-                return (shape() == other.shape()) & std::equal(begin(), end(), other.begin());
+                return (shape() == other.shape()) && std::equal(begin(), end(), other.begin());
             }
 
             bool operator!=(NdArrayBase const &other) const
             {
-                return (shape() != other.shape()) | !std::equal(begin(), end(), other.begin());
+                return (shape() != other.shape()) || !std::equal(begin(), end(), other.begin());
             }
     };
 
@@ -169,7 +169,7 @@ namespace numeric
             using View = typename NdArrayBase<T,D>::View;
             NdArray() {}
 
-            NdArray(shape_t<D> const &shape):
+            explicit NdArray(shape_t<D> const &shape):
                 NdArrayBase<T, D>(shape),
                 data_(calc_size<D>(shape))
             {}
@@ -186,7 +186,7 @@ namespace numeric
             }
 
             template <typename U>
-            NdArray(NdArray<U,D> const &other):
+            explicit NdArray(NdArray<U,D> const &other):
                 NdArray(other.shape())
             {
                 std::copy(other.begin(), other.end(), this->begin());

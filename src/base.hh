@@ -29,7 +29,7 @@ namespace HyperCanny
         bool restored;
 
         public:
-            CaptureOutput(std::ostream &s)
+            explicit CaptureOutput(std::ostream &s)
                 : std::ostringstream()
                 , stream(s)
                 , buffer(s.rdbuf(this->rdbuf()))
@@ -53,7 +53,7 @@ namespace HyperCanny
         std::string msg;
 
         public:
-            Exception(std::string const &msg):
+            explicit Exception(std::string const &msg):
                 msg(msg) {}
 
             virtual char const *what() const throw()

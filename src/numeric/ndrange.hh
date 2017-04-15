@@ -38,7 +38,7 @@ namespace HyperCanny { namespace numeric
              */
             NdRange(): address_(range_end) {}
 
-            NdRange(shape_t<D> const &shape):
+            explicit NdRange(shape_t<D> const &shape):
                 address_(0), shape_(shape)
             {
                 index_.fill(0);

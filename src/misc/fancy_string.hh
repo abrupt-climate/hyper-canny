@@ -20,7 +20,7 @@
 #include <algorithm>
 
 #include "colour.hh"
-#include "format.hh"
+#include "base/format.hh"
 
 namespace Misc
 {
@@ -65,7 +65,7 @@ namespace Misc
             std::string const content;
 
         public:
-            Style(std::string const &content) :
+            explicit Style(std::string const &content) :
                     content(content) { }
 
             ptr copy() const { return ptr(new Style(*this)); }
@@ -80,7 +80,7 @@ namespace Misc
             std::string const content;
 
         public:
-            String(std::string const &content) :
+            explicit String(std::string const &content) :
                     content(content) { }
 
             ptr copy() const { return ptr(new String(*this)); }

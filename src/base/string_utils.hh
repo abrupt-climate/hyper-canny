@@ -63,10 +63,10 @@ namespace HyperCanny
     template <typename I>
     void string_split(std::string const &s, char d, I inserter)
     {
-        size_t p, q = 0;
+        size_t q = 0;
         while (q < s.length())
         {
-            p = s.find_first_not_of(d, q);
+            size_t p = s.find_first_not_of(d, q);
             if (p == std::string::npos) return;
 
             q = s.find_first_of(d, p);

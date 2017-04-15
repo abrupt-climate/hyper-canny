@@ -33,7 +33,7 @@ namespace argparse
             Exception(Exception &&other) = default;
 
             template <typename ...Args>
-            Exception(Args &&...args):
+            explicit Exception(Args &&...args):
                 msg(format(std::forward<Args>(args)...)) {}
 
             char const *what() const throw () { return msg.c_str(); }
@@ -78,7 +78,7 @@ namespace argparse
         std::map<std::string, std::string> value_;
 
         public:
-            Args(std::initializer_list<Option> const &options)
+            explicit Args(std::initializer_list<Option> const &options)
             {
                 for (Option const &o : options)
                     option_[o.tag_] = o;
