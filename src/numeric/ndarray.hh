@@ -203,6 +203,9 @@ namespace numeric
 
             virtual T *data() { return data_.data(); }
             virtual T const *data() const { return data_.data(); }
+
+            template <typename T2>
+            NdArray &operator=(NdArrayBase<T2, D> const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
     };
 
     template <typename T, unsigned D>
@@ -220,7 +223,7 @@ namespace numeric
             virtual T const *data() const { return data_; }
 
             View &operator=(View const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
-            View &operator=(NdArray<T, D> const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
+            View &operator=(NdArrayBase<T, D> const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
             View &operator=(T value) { NdArrayBase<T, D>::operator=(value); return *this; }
     };
 
