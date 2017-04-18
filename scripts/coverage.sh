@@ -10,7 +10,7 @@ ninja test
 
 case "$1" in
         -codecov)
-                bash <(curl -s https://codecov.io/bash) -p ..
+                bash <(curl -s https://codecov.io/bash) -p .. -t $2
                 ;;
         -html)
                 lcov --directory . --capture --output-file ./code-coverage.info
