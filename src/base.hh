@@ -14,6 +14,12 @@
  */
 #pragma once
 
+/*! \file base.hh
+ *  \brief Includes some base utilities.
+ *
+ *  Consider these additions to the standard library for this project.
+ */
+
 #include "base/optional.hh"
 #include "base/iterating.hh"
 #include "base/string_utils.hh"
@@ -22,6 +28,9 @@
 
 namespace HyperCanny
 {
+    /*! \brief Captures output to specified stream for the life-time duration
+     *  of this object.
+     */
     class CaptureOutput: public std::ostringstream
     {
         std::ostream &stream;
@@ -29,7 +38,7 @@ namespace HyperCanny
         bool restored;
 
         public:
-            CaptureOutput(std::ostream &s)
+            explicit CaptureOutput(std::ostream &s)
                 : std::ostringstream()
                 , stream(s)
                 , buffer(s.rdbuf(this->rdbuf()))
@@ -48,12 +57,14 @@ namespace HyperCanny
             }
     };
 
+    /*! \brief Base exception for this project.
+     */
     class Exception: public std::exception
     {
         std::string msg;
 
         public:
-            Exception(std::string const &msg):
+            explicit Exception(std::string const &msg):
                 msg(msg) {}
 
             virtual char const *what() const throw()

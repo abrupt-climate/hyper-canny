@@ -14,15 +14,28 @@
  */
 #pragma once
 
+/*! \file numeric/numeric.hh
+ *  \brief Includes the basic contents of the numerical module.
+ */
+
+namespace HyperCanny {
+/*! \brief Numerical mathematics and Array manipulation.
+ */
+namespace numeric
+{
+    /*!
+     * \defgroup NdArrays N-dimensional Arrays
+     *
+     * NdArrays are templated on type and dimension. The shape of the array is
+     * managed run-time, using shapes and strides. By manipulating these shapes
+     * and strides, we can slice, dice, reverse and iterate a raw contiguous
+     * vector in any way we want.
+     */
+}}
+
 #include "types.hh"
 #include "support.hh"
 #include "ndrange.hh"
 #include "slice.hh"
 #include "ndarray.hh"
 
-namespace HyperCanny
-{
-    /*! \brief Numerical mathematics and Array manipulation.
-     */
-    namespace numeric {}
-}

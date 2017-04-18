@@ -14,6 +14,10 @@
  */
 #pragma once
 
+/*! \file numeric/brent.hh
+ *  \brief Root finding by Brent's method.
+ */
+
 namespace eScatter { namespace numeric {
     /*! \brief Root finding by Brent's method.
      *
@@ -50,8 +54,8 @@ namespace eScatter { namespace numeric {
 
             // keep if within bounds otherwise bisection
             c = ((b - c) * (a - c) < 0 ? c : (a + b) / 2);
-               
-            // update bounds 
+
+            // update bounds
             w = f(c) - y0;
             a = (w * y < 0 ? b : a);
             b = c;

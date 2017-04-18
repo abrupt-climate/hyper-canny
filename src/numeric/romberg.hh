@@ -13,11 +13,17 @@
  *   limitations under the License.
  */
 #pragma once
+
+/*! \file numeric/romberg.hh
+ *  \brief A Romberg integrator.
+ */
+
 #include <vector>
 #include <algorithm>
 #include <cmath>
 
-namespace eScatter { namespace numeric
+namespace HyperCanny {
+namespace numeric
 {
     /*! \brief Function integration by Romberg method.
      *
@@ -71,7 +77,7 @@ namespace eScatter { namespace numeric
 
             if (++i == max_it or fabs(s - result) < epsilon)
                 return s;
-            
+
             R[i] = s;
             result = s;
 

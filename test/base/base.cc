@@ -12,29 +12,19 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-#pragma once
 #include "base.hh"
-#include <utility>
+#include <gtest/gtest.h>
 
-/*! \file cl-util/set_args.hh
- *  \brief Short-hands for setting arguments to kernels.
- */
+using namespace HyperCanny;
 
-namespace HyperCanny
+TEST (BaseLibrary, Exceptions)
 {
-    template <unsigned N>
-    void set_args_n(cl::Kernel &k) {}
-
-    template <unsigned N, typename First, typename ...Rest>
-    void set_args_n(cl::Kernel &k, First &&first, Rest &&...rest)
+    try
     {
-        k.setArg(N, first);
-        set_args_n<N+1>(k, std::forward<Rest>(rest)...);
-    }
-
-    template <typename ...Args>
-    void set_args(cl::Kernel &k, Args &&...args)
+        throw Exception("error test");
+    } catch (Exception const &e)
     {
-        set_args_n<0>(k, std::forward<Args>(args)...);
+        ASSERT_EQ(std::string(e.what()), "error test");
     }
 }
+

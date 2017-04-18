@@ -13,6 +13,11 @@
  *   limitations under the License.
  */
 #pragma once
+
+/*! \file numeric/hilbert.hh
+ *  \brief Creates index arrays for iterating an array by Hilbert curve.
+ */
+
 #include "ndarray.hh"
 #include <vector>
 

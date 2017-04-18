@@ -16,6 +16,10 @@
 #include "base.hh"
 #include <vector>
 
+/*! \file cl-util/info.hh
+ *  \brief Print information on OpenCL runtime.
+ */
+
 namespace HyperCanny
 {
     extern void print_opencl_info(std::vector<cl::Platform> const &platform_list);

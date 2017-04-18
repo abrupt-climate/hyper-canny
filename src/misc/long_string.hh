@@ -14,6 +14,10 @@
  */
 #pragma once
 
+/*! \file misc/long_string.hh
+ *  \brief Splits long strings for display on fixed-width consoles
+ */
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -22,34 +26,12 @@
 #include <functional>
 
 #include "fancy_string.hh"
+#include "base/string_utils.hh"
 
 namespace Misc
 {
     namespace fancy
     {
-        template <typename I>
-        void split(std::string const &s, char d, I inserter)
-        {
-            size_t p, q = 0;
-            while (q < s.length())
-            {
-                p = s.find_first_not_of(d, q);
-                if (p == std::string::npos) return;
-
-                q = s.find_first_of(d, p);
-                if (q == std::string::npos)
-                {
-                    *inserter = s.substr(p, s.length() - p);
-                    return;
-                }
-                else
-                {
-                    *inserter = s.substr(p, q-p);
-                    ++inserter;
-                }
-            }
-        }
-
         struct LongString
         {
             std::vector<std::string> words;
@@ -60,7 +42,7 @@ namespace Misc
                 std::function<ptr ()> const &left_):
                 width(width_), left(left_)
             {
-                split(s, ' ', std::back_inserter(words));
+                string_split(s, ' ', std::back_inserter(words));
             }
 
             friend std::ostream &operator<<(std::ostream &out, LongString const &ls)

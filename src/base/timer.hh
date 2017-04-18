@@ -13,6 +13,12 @@
  *   limitations under the License.
  */
 #pragma once
+
+/*! \file base/timer.hh
+ *  \brief Implements a simple timer to check run-times and print
+ *  a friendly message of doing so to the console.
+ */
+
 #include "console.hh"
 #include <memory>
 #include <chrono>

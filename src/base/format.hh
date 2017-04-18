@@ -17,6 +17,11 @@
 #include <iostream>
 #include <sstream>
 
+/*! \file base/format.hh
+ *  \brief Defines the `format` function, which creates a string from its
+ *  arguments by passing them through a `std::ostringstream`.
+ */
+
 namespace HyperCanny
 {
     inline void format_to(std::ostream &out) {}
