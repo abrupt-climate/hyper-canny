@@ -13,6 +13,9 @@ project('Hyper Canny', 'cpp',
     version : '0.0.1',
     license : 'Apache v2')
 
+add_project_arguments(['--coverage'], language: 'cpp')
+add_project_link_arguments('--coverage', language: 'cpp')
+
 subdir('src')
 subdir('test')
 
