@@ -1,4 +1,25 @@
+/* Copyright 2017 Netherlands eScience Center
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 #pragma once
+
+/*! \file numeric/tabulated.hh
+ *  \brief Tabulated PDF data, linear interpolation, inversion.
+ *
+ *  Has no real place in this project; consider removal.
+ */
+
 #include <vector>
 #include <cmath>
 #include <iostream>
@@ -6,7 +27,9 @@
 #include "romberg.hh"
 #include "brent.hh"
 
-namespace eScatter { namespace numeric {
+namespace HyperCanny {
+namespace numeric
+{
     /*! \brief Tabulates values on uniform grid for fast look-up and linear
      * interpolation.
      */
@@ -22,7 +45,7 @@ namespace eScatter { namespace numeric {
             template <typename Range>
             Tabulated(Range const &r, real_t a, real_t b, real_t h):
                 values(r.begin(), r.end()), a(a), b(b), h(h) {}
-          
+
             bool in_bounds(real_t x) const;
             real_t operator()(real_t x) const;
 
@@ -73,7 +96,7 @@ namespace eScatter { namespace numeric {
      *
      * The final number of elements in the table will be n + 1, including both
      * bounding values.
-     */ 
+     */
     template <typename real_t>
     template <typename Fn>
     Tabulated<real_t> Tabulated<real_t>::inverse_cdf(Fn pdf, real_t x1, real_t x2, unsigned n, real_t epsilon)
@@ -99,8 +122,8 @@ namespace eScatter { namespace numeric {
                 x2 = result.values[j + m];
 
                 real_t x = find_root_brent(
-                    [&] (real_t x) { 
-                        return integrate_romberg(pdf, x1, x, epsilon, 10); 
+                    [&] (real_t x) {
+                        return integrate_romberg(pdf, x1, x, epsilon, 10);
                     }, pdf, x1, x2, total, epsilon);
 
                 result.values[j] = x;
@@ -111,4 +134,3 @@ namespace eScatter { namespace numeric {
         return result;
     }
 }}
-

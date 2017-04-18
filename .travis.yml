@@ -8,3 +8,5 @@ before_install:
   - docker build -t hyper-canny .
 script:
   - docker run -t hyper-canny /bin/bash -c 'meson build && cd build && ninja test'
+after_success:
+  - docker run -t hyper-canny /bin/bash -c "./scripts/coverage.sh -codecov ${CODECOV_TOKEN}"

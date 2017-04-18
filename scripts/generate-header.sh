@@ -18,4 +18,17 @@ license_text=$(cat << EOF
 EOF
 )
 
+echo "Adding the following header to all source files that don't start with a comment."
+echo "---"
+echo "${license_text}"
+echo "---"
 
+files=$(find src test -regex '.*\.\(cc\|hh\)' -not -path 'test/gtest/*' -not -path 'test/gmock/*')
+for f in ${files}; do
+        content=$(cat ${f})
+        if ! [[ "${content}" =~ ^\/\*\ Copyright.* ]]; then
+                echo "${f}"
+                echo "${license_text}" > ${f}
+                echo "${content}" >> ${f}
+        fi
+done

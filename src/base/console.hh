@@ -1,8 +1,34 @@
+/* Copyright 2017 Netherlands eScience Center
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 #pragma once
+
+/*! \file base/console.hh
+ *  \brief The `Console` class helps to print tidy and nested status messages
+ *  on the console.
+ *
+ *  `Console` is a singleton. Use it by instantiating a `Console::Log` object.
+ *  The `Console::Log` constructor can be used to add indentation to the
+ *  messaged printed. This indentation is automatically reverted when the
+ *  `Console::Log` object goes out of scope.
+ */
+
 #include "string_utils.hh"
 #include <vector>
 #include <memory>
 #include <list>
+#include <iostream>
 
 namespace HyperCanny
 {
@@ -10,6 +36,10 @@ namespace HyperCanny
     {
         std::list<std::string> m_indent;
         static std::unique_ptr<Console> s_instance;
+
+        Console()
+        {
+        }
 
         public:
             class Log;
@@ -22,6 +52,11 @@ namespace HyperCanny
                 }
 
                 return *s_instance;
+            }
+
+            static std::streambuf *redirect(std::ostream &out)
+            {
+                return out.rdbuf(std::clog.rdbuf());
             }
 
             Console &push(std::string const &i)
@@ -45,8 +80,8 @@ namespace HyperCanny
             Console &message(Args &&...args)
             {
                 for (std::string const &i : m_indent)
-                    std::cerr << i;
-                std::cerr << format(std::forward<Args>(args)...) << std::endl;
+                    std::clog << i;
+                std::clog << format(std::forward<Args>(args)...) << std::endl;
                 return *this;
             }
     };

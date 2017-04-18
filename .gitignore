@@ -12,5 +12,12 @@ doc/**/*.log
 doc/**/*.out
 doc/**/_*
 
+# doxygen
+doc/html
+doc/latex
+
 data/test
+
+# coveralls: don't expose token
+.coveralls.yml
 

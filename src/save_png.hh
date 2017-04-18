@@ -1,9 +1,28 @@
+/* Copyright 2017 Netherlands eScience Center
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 #pragma once
+
+/*! \file save_png.hh
+ *  \brief Defines some convenience functions to save floating-point data
+ *  to a PNG file for quick inspection.
+ */
 #include <cmath>
 #include <png++/png.hpp>
 #include <tuple>
 
-namespace cl_tutorial
+namespace HyperCanny
 {
     using Colour = std::tuple<int, int, int>;
 
@@ -25,6 +44,13 @@ namespace cl_tutorial
         }
     }
 
+    /*! \brief Saves data to a PNG file.
+     *  \param filename Name of output file.
+     *  \param width Width of the image.
+     *  \param height Height of the image.
+     *  \param data `std::vector` containing sequential values.
+     *  \param palette Function of data-type to a rgb-tuple of integers.
+     */
     template <typename T, typename ColourMap>
     inline void save_png(
             std::string const &filename,
@@ -50,4 +76,3 @@ namespace cl_tutorial
         std::cerr << ">>> (ok)\n";
     }
 }
-

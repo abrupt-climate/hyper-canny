@@ -1,4 +1,23 @@
+/* Copyright 2017 Netherlands eScience Center
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 #pragma once
+
+/*! \file numeric/ndarray.hh
+ *  \brief N-dimensional arrays
+ */
+
 #include "types.hh"
 #include "support.hh"
 #include "slice.hh"
@@ -8,6 +27,9 @@
 namespace HyperCanny {
 namespace numeric
 {
+    /*! \addtogroup NdArrays
+     * @{
+     */
     template <typename T, unsigned D>
     class NdIterator: public std::iterator<std::forward_iterator_tag, T>
     {
@@ -51,7 +73,8 @@ namespace numeric
     template <typename T, unsigned D>
     class NdArrayBase
     {
-        Slice<D> slice_;
+        protected:
+            Slice<D> slice_;
 
         public:
             class View;
@@ -59,7 +82,9 @@ namespace numeric
             using iterator = NdIterator<T, D>;
             using const_iterator = NdConstIterator<T, D>;
 
-            NdArrayBase(shape_t<D> const &shape):
+            NdArrayBase() {}
+
+            explicit NdArrayBase(shape_t<D> const &shape):
                 slice_(shape)
             {}
 
@@ -67,7 +92,7 @@ namespace numeric
                 slice_(offset, shape, stride)
             {}
 
-            NdArrayBase(Slice<D> const &slice):
+            explicit NdArrayBase(Slice<D> const &slice):
                 slice_(slice)
             {}
 
@@ -110,7 +135,8 @@ namespace numeric
                 return *this;
             }
 
-            NdArrayBase &operator=(NdArrayBase const &other)
+            template <typename T2>
+            NdArrayBase &operator=(NdArrayBase<T2,D> const &other)
             {
                 if (shape() != other.shape())
                     throw "shapes of arrays do not match.";
@@ -126,12 +152,12 @@ namespace numeric
 
             bool operator==(NdArrayBase const &other) const
             {
-                return (shape() == other.shape()) & std::equal(begin(), end(), other.begin());
+                return (shape() == other.shape()) && std::equal(begin(), end(), other.begin());
             }
 
             bool operator!=(NdArrayBase const &other) const
             {
-                return (shape() != other.shape()) | !std::equal(begin(), end(), other.begin());
+                return (shape() != other.shape()) || !std::equal(begin(), end(), other.begin());
             }
     };
 
@@ -149,8 +175,9 @@ namespace numeric
 
         public:
             using View = typename NdArrayBase<T,D>::View;
+            NdArray() {}
 
-            NdArray(shape_t<D> const &shape):
+            explicit NdArray(shape_t<D> const &shape):
                 NdArrayBase<T, D>(shape),
                 data_(calc_size<D>(shape))
             {}
@@ -167,10 +194,16 @@ namespace numeric
             }
 
             template <typename U>
-            NdArray(NdArray<U,D> const &other):
+            explicit NdArray(NdArray<U,D> const &other):
                 NdArray(other.shape())
             {
                 std::copy(other.begin(), other.end(), this->begin());
+            }
+
+            void resize(shape_t<D> shape)
+            {
+                this->slice_ = Slice<D>(shape);
+                data_.resize(this->slice_.size);
             }
 
             T &operator[](size_t i) { return data_[i]; }
@@ -178,6 +211,9 @@ namespace numeric
 
             virtual T *data() { return data_.data(); }
             virtual T const *data() const { return data_.data(); }
+
+            template <typename T2>
+            NdArray &operator=(NdArrayBase<T2, D> const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
     };
 
     template <typename T, unsigned D>
@@ -195,7 +231,7 @@ namespace numeric
             virtual T const *data() const { return data_; }
 
             View &operator=(View const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
-            View &operator=(NdArray<T, D> const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
+            View &operator=(NdArrayBase<T, D> const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
             View &operator=(T value) { NdArrayBase<T, D>::operator=(value); return *this; }
     };
 
@@ -209,5 +245,5 @@ namespace numeric
             };
     };
 
+    /*! @} */
 }} // namespace HyperCanny::numeric
-

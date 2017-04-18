@@ -1,11 +1,39 @@
+/* Copyright 2017 Netherlands eScience Center
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 #pragma once
+
+/*! \file numeric/ndrange.hh
+ *  \brief N-dimensional range object.
+ *
+ *  This provides the basic arithmetic to iterate arrays, as such it
+ *  provides an iterator-like interface, but it doesn't iterate anything.
+ *  Maybe `NdIndex` is a better name.
+ */
+
 #include "types.hh"
 #include "support.hh"
 
 #include <limits>
 
-namespace HyperCanny { namespace numeric
+namespace HyperCanny {
+namespace numeric
 {
+    /*!
+     * \addtogroup NdArrays
+     * @{
+     */
     constexpr size_t range_end = std::numeric_limits<size_t>::max();
 
     template <unsigned D>
@@ -24,7 +52,7 @@ namespace HyperCanny { namespace numeric
              */
             NdRange(): address_(range_end) {}
 
-            NdRange(shape_t<D> const &shape):
+            explicit NdRange(shape_t<D> const &shape):
                 address_(0), shape_(shape)
             {
                 index_.fill(0);
@@ -88,5 +116,5 @@ namespace HyperCanny { namespace numeric
                 }
             }
     };
+    /*! @} */
 }} // namespace numeric
-
