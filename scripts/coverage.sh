@@ -7,9 +7,17 @@ fi
 
 cd build-coverage
 ninja test
-lcov --directory . --capture --output-file ./code-coverage.info
-# ninja test
-lcov --remove code-coverage.info "/usr/*" "test/*" -o code-coverage.info
-genhtml code-coverage.info --output-directory ./coverage-report/
+
+case "$1" in
+        -codecov)
+                bash <(curl -s https://codecov.io/bash) -t $2 -p .. -g test include
+                ;;
+        -html)
+                lcov --directory . --capture --output-file ./code-coverage.info
+                lcov --remove code-coverage.info "/usr/*" "test/*" -o code-coverage.info
+                genhtml code-coverage.info --output-directory ./coverage-report/
+                ;;
+esac
+
 cd ..
 
