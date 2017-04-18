@@ -5,7 +5,8 @@ RUN apt-get update && apt-get install --no-install-recommends -yq \
     build-essential g++-5 python3 python3-pip \
     libpng12-dev mesa-opencl-icd ocl-icd-opencl-dev opencl-headers \
     libnetcdf-dev libnetcdf-c++4-dev libhdf5-dev \
-    python3-wheel python3-setuptools ninja-build pkg-config
+    python3-wheel python3-setuptools ninja-build pkg-config \
+    lcov
 
 RUN pip3 install meson
 
