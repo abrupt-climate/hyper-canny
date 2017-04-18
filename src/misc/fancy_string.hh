@@ -14,6 +14,10 @@
  */
 #pragma once
 
+/*! \file misc/fancy_string.hh
+ *  \brief Fancy strings contain primitive style elements.
+ */
+
 #include <string>
 #include <memory>
 #include <vector>

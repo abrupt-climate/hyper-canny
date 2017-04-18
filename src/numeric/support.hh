@@ -13,6 +13,11 @@
  *   limitations under the License.
  */
 #pragma once
+
+/*! \file numeric/support.hh
+ *  \brief Support functions.
+ */
+
 #include <array>
 #include <cstdint>
 #include "types.hh"

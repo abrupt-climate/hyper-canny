@@ -13,6 +13,11 @@
  *   limitations under the License.
  */
 #pragma once
+
+/*! \file cl-util/get_gpu_context.hh
+ *  \brief Get the OpenCL context for the local GPU.
+ */
+
 #include "base.hh"
 #include <tuple>
 #include <vector>

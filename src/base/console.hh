@@ -13,6 +13,17 @@
  *   limitations under the License.
  */
 #pragma once
+
+/*! \file base/console.hh
+ *  \brief The `Console` class helps to print tidy and nested status messages
+ *  on the console.
+ *
+ *  `Console` is a singleton. Use it by instantiating a `Console::Log` object.
+ *  The `Console::Log` constructor can be used to add indentation to the
+ *  messaged printed. This indentation is automatically reverted when the
+ *  `Console::Log` object goes out of scope.
+ */
+
 #include "string_utils.hh"
 #include <vector>
 #include <memory>

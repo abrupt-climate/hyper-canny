@@ -14,6 +14,10 @@
  */
 #pragma once
 
+/*! \file misc/argparse.hh
+ *  \brief Easy argument parser.
+ */
+
 #include <string>
 #include <iostream>
 #include <sstream>

@@ -14,6 +14,10 @@
  */
 #pragma once
 
+/*! \file misc/long_string.hh
+ *  \brief Splits long strings for display on fixed-width consoles
+ */
+
 #include <vector>
 #include <string>
 #include <iostream>

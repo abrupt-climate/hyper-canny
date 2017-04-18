@@ -13,6 +13,11 @@
  *   limitations under the License.
  */
 #pragma once
+
+/*! \file misc/colour.hh
+ *  \brief Some colours for the console.
+ */
+
 #include <cstdint>
 
 namespace Misc

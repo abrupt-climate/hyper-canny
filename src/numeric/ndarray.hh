@@ -13,6 +13,11 @@
  *   limitations under the License.
  */
 #pragma once
+
+/*! \file numeric/ndarray.hh
+ *  \brief N-dimensional arrays
+ */
+
 #include "types.hh"
 #include "support.hh"
 #include "slice.hh"
@@ -22,6 +27,9 @@
 namespace HyperCanny {
 namespace numeric
 {
+    /*! \addtogroup NdArrays
+     * @{
+     */
     template <typename T, unsigned D>
     class NdIterator: public std::iterator<std::forward_iterator_tag, T>
     {
@@ -237,4 +245,5 @@ namespace numeric
             };
     };
 
+    /*! @} */
 }} // namespace HyperCanny::numeric

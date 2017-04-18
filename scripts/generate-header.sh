@@ -23,7 +23,7 @@ echo "---"
 echo "${license_text}"
 echo "---"
 
-files=$(find src test -regex '.*\.\(cc\|hh\)' -not -path 'test/gtest/*')
+files=$(find src test -regex '.*\.\(cc\|hh\)' -not -path 'test/gtest/*' -not -path 'test/gmock/*')
 for f in ${files}; do
         content=$(cat ${f})
         if ! [[ "${content}" =~ ^\/\*\ Copyright.* ]]; then

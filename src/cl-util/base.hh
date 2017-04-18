@@ -12,6 +12,12 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+#pragma once
+
+/*! \file cl-util/base.hh
+ *  \brief Basic include for rest of module.
+ */
+
 #define CL_HPP_MINIMUM_OPENCL_VERSION 100
 #define CL_HPP_TARGET_OPENCL_VERSION  120
 #include "../base.hh"

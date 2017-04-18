@@ -1,7 +1,21 @@
+/* Copyright 2017 Netherlands eScience Center
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 #include "numeric/netcdf.hh"
 #include "numeric/hilbert.hh"
 #include "numeric/ndarray.hh"
-#include <experimental/filesystem>
+#include "base/filesystem.hh"
 #include <algorithm>
 
 #include <gmock/gmock.h>
@@ -21,7 +35,7 @@ class NetCDFTest: public ::testing::Test
             auto long_data = numeric::hilbert_array(10);
             data.resize(long_data.shape());
             data = long_data;
-            std::experimental::filesystem::create_directories("./data/test");
+            std::filesystem::create_directories("./data/test");
         }
 
         virtual void TearDown()
@@ -60,7 +74,6 @@ TEST_F (NetCDFTest, ReadingAndWriting)
 
         ASSERT_TRUE(eq) << "array read from file does not match original.";
 
-        std::experimental::filesystem::remove("./data/test/netcdf-test.nc");
+        std::filesystem::remove("./data/test/netcdf-test.nc");
     }
 }
-

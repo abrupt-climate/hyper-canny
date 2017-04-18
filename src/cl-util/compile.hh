@@ -13,6 +13,11 @@
  *   limitations under the License.
  */
 #pragma once
+
+/*! \file cl-util/compile.hh
+ *  \brief Short-hands for compiling OpenCL kernels.
+ */
+
 #include "base.hh"
 #include <string>
 

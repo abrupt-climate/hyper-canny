@@ -12,6 +12,12 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+#pragma once
+
+/*! \file base/optional.hh
+ *  \brief Compatibility with C++17 `std::optional`.
+ */
+
 #include <experimental/optional>
 
 namespace std {

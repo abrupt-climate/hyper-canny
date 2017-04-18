@@ -17,6 +17,10 @@
 #include <tuple>
 #include <string>
 
+/*! \file cl-util/timing.hh
+ *  \brief Help in fetching kernel execution times.
+ */
+
 namespace HyperCanny
 {
     extern std::tuple<unsigned long, unsigned long> get_runtime(cl::Event const &event);

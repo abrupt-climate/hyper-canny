@@ -14,6 +14,10 @@
  */
 #pragma once
 
+/*! \file base/iterating.hh
+ *  \brief Helper function to do generic iterations.
+ */
+
 namespace HyperCanny
 {
     /* generic string utilities ========================================== */

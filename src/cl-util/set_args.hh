@@ -16,6 +16,10 @@
 #include "base.hh"
 #include <utility>
 
+/*! \file cl-util/set_args.hh
+ *  \brief Short-hands for setting arguments to kernels.
+ */
+
 namespace HyperCanny
 {
     template <unsigned N>

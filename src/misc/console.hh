@@ -14,6 +14,10 @@
  */
 #pragma once
 
+/*! \file misc/console.hh
+ *  \brief Functions for setting console colours.
+ */
+
 #include "fancy_string.hh"
 
 namespace Misc
