@@ -12,5 +12,9 @@ doc/**/*.log
 doc/**/*.out
 doc/**/_*
 
+# doxygen
+doc/html
+doc/latex
+
 data/test
 
