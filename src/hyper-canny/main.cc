@@ -13,12 +13,18 @@
  *   limitations under the License.
  */
 #include "../base.hh"
-#include <cstdlib>
 #include "../numeric/numeric.hh"
+
+#include <cstdlib>
+
+#include <complex>
 
 using namespace HyperCanny;
 
 int main(int argc, char **argv)
 {
+    Console::Log console("Hyper Canny!");
+    console.message("doing nothing yet...");
+    console.finish("done idling");
     return EXIT_SUCCESS;
 }

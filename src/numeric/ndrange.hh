@@ -41,7 +41,7 @@ namespace numeric
     {
         size_t address_;
         shape_t<D> index_, shape_;
-        stride_t<D> semi_stride_;
+        stride_t<D> stride_, semi_stride_;
 
         public:
             size_t address() const { return address_; }
@@ -53,19 +53,43 @@ namespace numeric
             NdRange(): address_(range_end) {}
 
             explicit NdRange(shape_t<D> const &shape):
-                address_(0), shape_(shape)
+                address_(0), shape_(shape), stride(calc_stride(shape_))
             {
                 index_.fill(0);
-                calc_semi_stride(calc_stride(shape_));
+                calc_semi_stride(stride_);
             }
 
             NdRange(size_t offset,
                     shape_t<D> const &shape,
                     stride_t<D> const &stride):
-                address_(offset), shape_(shape)
+                address_(offset), shape_(shape), stride_(stride)
             {
                 index_.fill(0);
-                calc_semi_stride(stride);
+                calc_semi_stride(stride_);
+            }
+
+            NdRange(size_t offset,
+                    shape_t<D> const &shape,
+                    stride_t<D> const &stride,
+                    shape_t<D> const &index)
+                : address_(offset)
+                , index_(index)
+                , shape_(shape)
+                , stride_(stride)
+            {
+                calc_semi_stride(stride_);
+            }
+
+            NdRange &cycle(unsigned axis)
+            {
+                ++index_[axis];
+                address_ += stride_[axis];
+
+                if (index_[axis] == shape_[axis])
+                {
+                    index_[axis] = 0;
+                    address_ -= stride_[axis] * shape_[axis];
+                }
             }
 
             NdRange &operator++()
@@ -78,7 +102,7 @@ namespace numeric
                 {
                     if (++i == D)
                     {
-                        address_ = range_end;
+                        set_end();
                         break;
                     }
 
@@ -103,6 +127,18 @@ namespace numeric
             bool operator!=(NdRange const &other) const
             {
                 return address_ != other.address_;
+            }
+
+            NdRange &set_end()
+            {
+                address_ = range_end;
+                return *this;
+            }
+
+            NdRange &set_index(shape_t<D> index)
+            {
+                address_ = offset
+                return *this;
             }
 
         private:

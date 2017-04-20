@@ -133,6 +133,19 @@ namespace HyperCanny { namespace numeric
             {
                 return NdRange<D>();
             }
+
+            PeriodicRange<D> periodic_begin(stride_t<D> p_offset, shape_t<D> p_shape) const
+            {
+                shape_t<D> pmod_offset = modulo(p_offset, shape);
+                size_t address = affine(offset, stride, pmod_offset);
+                NdRange<D> range(address, shape, stride, pmod_offset);
+                return PeriodicRange<D>(range, p_shape);
+            }
+
+            PeriodicRange<D> periodic_end() const
+            {
+                return PeriodicRange<D>();
+            }
     };
 
     /*! \brief Stops recursive definition of `sel` method.
