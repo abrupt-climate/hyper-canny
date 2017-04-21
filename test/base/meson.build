@@ -1,1 +1,1 @@
-test_base_files = files('./strings.cc','./base.cc',)
+test_base_files = files('./base.cc','./strings.cc')

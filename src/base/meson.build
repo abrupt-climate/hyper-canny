@@ -1,1 +1,1 @@
-src_base_files = files('./console.cc',)
+src_base_files = files('./console.cc')

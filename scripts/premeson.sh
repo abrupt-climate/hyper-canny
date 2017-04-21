@@ -3,7 +3,7 @@
 root=$(pwd)
 
 create_meson_file() {
-    cc_files=$(find . -name '*.cc' -printf "'%p',")
+    cc_files=$(find . -name '*.cc' | sort | xargs printf \'%s\',)
     d=$(pwd)
     if [ $# -eq 0 ]; then
         id=$(basename $d | sed -e "s/-/_/")
@@ -11,7 +11,7 @@ create_meson_file() {
         id="${1}_$(basename $d | sed -e "s/-/_/")"
     fi
 
-    echo "${id}_files = files(${cc_files})" > meson.build
+    echo "${id}_files = files(${cc_files::-1})" > meson.build
 }
 
 create_hierarchy() {

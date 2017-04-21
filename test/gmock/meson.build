@@ -1,1 +1,1 @@
-test_gmock_files = files('./src/gmock-all.cc','./src/gmock.cc','./src/gmock-matchers.cc','./src/gmock-cardinalities.cc','./src/gmock_main.cc','./src/gmock-internal-utils.cc','./src/gmock-spec-builders.cc',)
+test_gmock_files = files('./src/gmock-all.cc','./src/gmock-cardinalities.cc','./src/gmock.cc','./src/gmock-internal-utils.cc','./src/gmock_main.cc','./src/gmock-matchers.cc','./src/gmock-spec-builders.cc')
