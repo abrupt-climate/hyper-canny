@@ -59,4 +59,47 @@ namespace HyperCanny { namespace numeric
         }
         return result;
     }
+
+	/*!
+	 * calculates a mod b, by the mathematical definition:
+	 * the C operator % does not give the right answer if a < 0
+	 */
+	inline int modulo(int a, int b)
+	{
+		if (a < 0) return b + (a % b);
+		else return (a % b);
+	}
+
+    template <typename Arg1T, typename Arg2T, unsigned D>
+    inline std::array<Arg2T, D> modulo(std::array<Arg1T, D> const &a, std::array<Arg2T, D> const &b)
+    {
+        std::array<Arg2T, D> result;
+        for (unsigned i = 0; i < D; ++i)
+        {
+            result[i] = modulo(a[i], b[i]);
+        }
+        return result;
+    }
+
+    template <unsigned D>
+    inline size_t affine(size_t offset, stride_t<D> const &stride, shape_t<D> const &index)
+    {
+        for (unsigned i = 0; i < D; ++i)
+        {
+            offset += stride[i] * index[i];
+        }
+        return offset;
+    }
+
+    template <unsigned D>
+    stride_t<D> calc_semi_stride(shape_t<D> const &shape, stride_t<D> const &stride)
+    {
+        stride_t<D> semi_stride;
+        semi_stride[0] = stride[0];
+
+        for (unsigned i = 1; i < D; ++i)
+        {
+            semi_stride[i] = stride[i] - shape[i-1] * stride[i-1];
+        }
+    }
 }}

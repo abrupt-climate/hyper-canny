@@ -53,7 +53,7 @@ namespace numeric
             NdRange(): address_(range_end) {}
 
             explicit NdRange(shape_t<D> const &shape):
-                address_(0), shape_(shape), stride(calc_stride(shape_))
+                address_(0), shape_(shape), stride_(calc_stride(shape_))
             {
                 index_.fill(0);
                 calc_semi_stride(stride_);
@@ -90,6 +90,8 @@ namespace numeric
                     index_[axis] = 0;
                     address_ -= stride_[axis] * shape_[axis];
                 }
+
+                return *this;
             }
 
             NdRange &operator++()
@@ -132,12 +134,6 @@ namespace numeric
             NdRange &set_end()
             {
                 address_ = range_end;
-                return *this;
-            }
-
-            NdRange &set_index(shape_t<D> index)
-            {
-                address_ = offset
                 return *this;
             }
 

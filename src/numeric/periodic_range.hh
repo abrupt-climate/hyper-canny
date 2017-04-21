@@ -15,6 +15,9 @@ namespace numeric {
         shape_t<D> m_shape, m_index;
 
         public:
+            size_t address() const { return m_range.address(); }
+            uint32_t index(unsigned i) const { return m_index[i]; }
+
             PeriodicRange(
                     NdRange<D> const &range,
                     shape_t<D> const &shape)
@@ -38,7 +41,7 @@ namespace numeric {
                 {
                     if (++i == D)
                     {
-                        m_range.set_end()
+                        m_range.set_end();
                         break;
                     }
 

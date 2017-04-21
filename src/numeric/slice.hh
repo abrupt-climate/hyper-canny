@@ -20,6 +20,7 @@
  */
 
 #include "ndrange.hh"
+#include "periodic_range.hh"
 
 namespace HyperCanny { namespace numeric
 {
