@@ -19,8 +19,6 @@
  *  stride structure.
  */
 
-#include "ndrange.hh"
-
 namespace HyperCanny { namespace numeric
 {
     /*!
@@ -127,16 +125,6 @@ namespace HyperCanny { namespace numeric
                 stride_t<D> new_stride = stride;
                 new_stride[axis] = -stride[axis];
                 return Slice<D>(new_offset, shape, new_stride);
-            }
-
-            NdRange<D> begin() const
-            {
-                return NdRange<D>(offset, shape, stride);
-            }
-
-            NdRange<D> end() const
-            {
-                return NdRange<D>();
             }
     };
 

@@ -35,7 +35,6 @@ namespace numeric
 
 #include "types.hh"
 #include "support.hh"
-#include "ndrange.hh"
 #include "slice.hh"
 #include "ndarray.hh"
 
