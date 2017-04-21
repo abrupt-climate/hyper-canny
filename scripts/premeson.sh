@@ -31,7 +31,7 @@ create_hierarchy() {
 }
 
 create_hierarchy src
-create_hierarchy test -not -path ./gtest
+create_hierarchy test -not -path ./gtest -not -path ./gmock
 
 cd test/gtest/src
 echo "gtest_src_files = files('./gtest-all.cc', './gtest_main.cc')" > meson.build
