@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install --no-install-recommends -yq \
     libpng12-dev mesa-opencl-icd ocl-icd-opencl-dev opencl-headers \
     libnetcdf-dev libnetcdf-c++4-dev libhdf5-dev \
     python3-wheel python3-setuptools ninja-build pkg-config \
-    lcov curl git
+    lcov curl git libfftw3-dev
 
 RUN pip3 install meson
 
