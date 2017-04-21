@@ -14,27 +14,15 @@
  */
 #pragma once
 
-/*! \file numeric/numeric.hh
- *  \brief Includes the basic contents of the numerical module.
+/*! \file numeric/convolution.hh
+ *  \brief Generic N-dimensional convolution.
  */
 
 namespace HyperCanny {
-/*! \brief Numerical mathematics and Array manipulation.
- */
-namespace numeric
-{
-    /*!
-     * \defgroup NdArrays N-dimensional Arrays
-     *
-     * NdArrays are templated on type and dimension. The shape of the array is
-     * managed run-time, using shapes and strides. By manipulating these shapes
-     * and strides, we can slice, dice, reverse and iterate a raw contiguous
-     * vector in any way we want.
-     */
-}}
-
-#include "types.hh"
-#include "support.hh"
-#include "slice.hh"
-#include "ndarray.hh"
-
+namespace numeric {
+    template <typename real_t, unsigned D>
+    void convolve(NdArrayBase<real_t,D> &data, NdArrayBase<real_t,D> const &kernel)
+    {
+        
+    }
+}} // HyperCanny::numeric

@@ -1,5 +1,5 @@
-subdir('./gmock')
 subdir('./numeric')
+subdir('./gmock')
 subdir('./base')
 subdir('gtest/src')
 subdir('gmock/src')

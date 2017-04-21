@@ -26,12 +26,12 @@ TEST (NdArray, Selecting)
     using numeric::NdArray;
 
     NdArray<int,2> a1({2, 2});
-    std::iota(a1.begin(), a1.end(), 1);
+    std::iota(a1.begin(), a1.end(), 42);
 
-    NdArray<int,1> b1({2}, {1, 2}),
-                   b2({2}, {3, 4}),
-                   b3({2}, {1, 3}),
-                   b4({2}, {2, 4});
+    NdArray<int,1> b1({2}, {42, 43}),
+                   b2({2}, {44, 45}),
+                   b3({2}, {42, 44}),
+                   b4({2}, {43, 45});
 
     ASSERT_EQ(a1.sel<1>(0), b1);
     ASSERT_EQ(a1.sel<1>(1), b2);

@@ -20,6 +20,8 @@ subdir('test')
 opencl_dep = dependency('OpenCL')
 libpng_dep = dependency('libpng')
 netcdf_dep = dependency('netcdf-cxx4')
+fftw_dep = dependency('fftw3')
+fftwf_dep = dependency('fftw3f')
 
 h5_cflags = run_command(['scripts/h5-config.sh', '--cflags']).stdout().strip().split()
 h5_libs = run_command(['scripts/h5-config.sh', '--libs']).stdout().strip().split()
@@ -37,24 +39,25 @@ executable('cl-info', src_cl_info_files, src_base_files,
     include_directories: local_include)
 
 executable('hyper-canny', src_hyper_canny_files,
-    dependencies : opencl_dep,
+    install: true,
+    dependencies : [opencl_dep, fftw_dep, fftwf_dep],
     link_with: [cl_util_static],
     include_directories: local_include)
 
 executable('examples/hilbert', src_numeric_files,
     'src/examples/hilbert/main.cc',
-    )
+    dependencies: [fftw_dep, fftwf_dep])
 
 executable('examples/hdf5-test', src_numeric_files, src_base_files,
     'src/examples/hdf5/main.cc',
     cpp_args: [h5_cflags],
     link_args: h5_libs,
-    dependencies: libpng_dep,
+    dependencies: [libpng_dep, fftw_dep, fftwf_dep],
     include_directories: local_include)
 
 executable('examples/netcdf-test', src_numeric_files, src_base_files,
     'src/examples/netcdf/main.cc',
-    dependencies: netcdf_dep,
+    dependencies: [netcdf_dep, fftw_dep, fftwf_dep],
     include_directories: local_include)
 
 # ======== [[ Unit testing ]] =================================================
@@ -71,7 +74,7 @@ test_base = executable('test-base', src_base_files, test_base_files,
 
 test_numeric = executable('test-numeric',
     src_base_files, src_numeric_files, test_numeric_files,
-    dependencies: [netcdf_dep],
+    dependencies: [netcdf_dep, fftw_dep, fftwf_dep],
     link_with: [gtest_static],
     link_args: ['-lpthread', '-lstdc++fs'],
     include_directories: [local_include, gtest_include])
