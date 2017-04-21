@@ -123,7 +123,7 @@ namespace numeric
         }, std::forward<DimArgs>(dim_args)...);
 
         NcVar nc_data = file.addVar(var_name, type_traits<T>::nc_type, dims);
-        nc_data.putVar(data.data());
+        nc_data.putVar(data.container().data());
     }
 
     template <typename T, unsigned D>
@@ -153,12 +153,12 @@ namespace numeric
 
         if (nc_var.getType() == type_traits<T>::nc_type)
         {
-            nc_var.getVar(data->data());
+            nc_var.getVar(data->container().data());
         } else {
             console.warning(
                 "converting data from ", nc_var.getType().getTypeClassName(),
                 " to ", type_traits<T>::nc_type.getTypeClassName());
-            netcdf_convert<T>(nc_var, data->data(), data->size());
+            netcdf_convert<T>(nc_var, data->container().data(), data->size());
         }
 
         return std::move(data);

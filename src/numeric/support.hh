@@ -70,10 +70,10 @@ namespace HyperCanny { namespace numeric
 		else return (a % b);
 	}
 
-    template <typename Arg1T, typename Arg2T, unsigned D>
-    inline std::array<Arg2T, D> modulo(std::array<Arg1T, D> const &a, std::array<Arg2T, D> const &b)
+    template <unsigned long D>
+    inline shape_t<D> modulo(stride_t<D> const &a, shape_t<D> const &b)
     {
-        std::array<Arg2T, D> result;
+        shape_t<D> result;
         for (unsigned i = 0; i < D; ++i)
         {
             result[i] = modulo(a[i], b[i]);
@@ -91,15 +91,17 @@ namespace HyperCanny { namespace numeric
         return offset;
     }
 
-    template <unsigned D>
-    stride_t<D> calc_semi_stride(shape_t<D> const &shape, stride_t<D> const &stride)
+    template <typename T1, typename T2>
+    T2 calc_semi_stride(T1 const &shape, T2 const &stride)
     {
-        stride_t<D> semi_stride;
+        T2 semi_stride;
         semi_stride[0] = stride[0];
 
-        for (unsigned i = 1; i < D; ++i)
+        for (unsigned i = 1; i < semi_stride.size(); ++i)
         {
             semi_stride[i] = stride[i] - shape[i-1] * stride[i-1];
         }
+
+        return semi_stride;
     }
 }}

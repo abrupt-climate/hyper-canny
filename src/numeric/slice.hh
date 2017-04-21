@@ -20,7 +20,6 @@
  */
 
 #include "ndrange.hh"
-#include "periodic_range.hh"
 
 namespace HyperCanny { namespace numeric
 {
@@ -64,12 +63,17 @@ namespace HyperCanny { namespace numeric
             /*! \brief Return the flat vector index belonging to a given
              *  N-dimensional index.
              */
-            size_t flat_index(shape_t<D> const &x)
+            size_t flat_index(shape_t<D> const &x) const
             {
-                size_t i = offset;
+                size_t j = offset;
                 for (unsigned i = 0; i < D; ++i)
-                    i += x[i] * stride[i];
-                return i;
+                    j += x[i] * stride[i];
+                return j;
+            }
+
+            size_t flat_index(stride_t<D> const &x) const
+            {
+                return flat_index(modulo(x, shape));
             }
 
             /*! \brief Transpose the slice, by reversing the shape and stride.
@@ -133,19 +137,6 @@ namespace HyperCanny { namespace numeric
             NdRange<D> end() const
             {
                 return NdRange<D>();
-            }
-
-            PeriodicRange<D> periodic_begin(stride_t<D> p_offset, shape_t<D> p_shape) const
-            {
-                shape_t<D> pmod_offset = modulo(p_offset, shape);
-                size_t address = affine(offset, stride, pmod_offset);
-                NdRange<D> range(address, shape, stride, pmod_offset);
-                return PeriodicRange<D>(range, p_shape);
-            }
-
-            PeriodicRange<D> periodic_end() const
-            {
-                return PeriodicRange<D>();
             }
     };
 

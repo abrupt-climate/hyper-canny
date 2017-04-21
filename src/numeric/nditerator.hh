@@ -32,21 +32,50 @@ namespace numeric
      * \addtogroup NdArrays
      * @{
      */
-    template <typename LinearIterator, unsigned D>
-    class NdIterator
+    template <typename LinearIterator, unsigned D, typename T>
+    class NdIteratorImpl: public std::iterator<std::forward_iterator_tag, T>
     {
         LinearIterator m_address;
         shape_t<D> m_index;
         shape_t<D> m_shape;
         stride_t<D> m_stride;
         stride_t<D> m_semi_stride;
+        bool m_end;
 
         public:
-            using value_type = typename std::iterator_traits<LinearIterator>::value_type;
-            using
+            using value_type = T;
             LinearIterator const &address() const { return m_address; }
+            shape_t<D> const &index() const { return m_index; }
 
-            NdIterator(
+            NdIteratorImpl()
+                : m_end(true)
+            {}
+
+            NdIteratorImpl(
+                    LinearIterator const &start,
+                    Slice<D> const &slice)
+                : m_address(start)
+                , m_shape(slice.shape)
+                , m_stride(slice.stride)
+                , m_semi_stride(calc_semi_stride(slice.shape, slice.stride))
+                , m_end(false)
+            {
+                m_index.fill(0);                
+            }
+
+            NdIteratorImpl(
+                    LinearIterator const &start,
+                    Slice<D> const &slice,
+                    shape_t<D> const &index)
+                : m_address(start + slice.flat_index(index))
+                , m_index(index)
+                , m_shape(slice.shape)
+                , m_stride(slice.stride)
+                , m_semi_stride(calc_semi_stride(slice.shape, slice.stride))
+                , m_end(false)
+            {}
+
+            NdIteratorImpl(
                     LinearIterator const &start,
                     shape_t<D> const &shape,
                     stride_t<D> const &stride)
@@ -54,11 +83,12 @@ namespace numeric
                 , m_shape(shape)
                 , m_stride(stride)
                 , m_semi_stride(calc_semi_stride(shape, stride))
+                , m_end(false)
             {
                 m_index.fill(0);
             }
 
-            NdIterator(
+            NdIteratorImpl(
                     LinearIterator const &start,
                     shape_t<D> const &shape,
                     stride_t<D> const &stride,
@@ -68,9 +98,10 @@ namespace numeric
                 , m_shape(shape)
                 , m_stride(stride)
                 , m_semi_stride(calc_semi_stride(shape, stride))
+                , m_end(false)
             {}
 
-            NdIterator &cycle(unsigned axis)
+            NdIteratorImpl &cycle(unsigned axis)
             {
                 ++m_index[axis];
                 m_address += m_stride[axis];
@@ -84,7 +115,16 @@ namespace numeric
                 return *this;
             }
 
-            NdIterator &operator++()
+            NdIteratorImpl &cycle(unsigned axis, int delta)
+            {
+                ptrdiff_t new_index = modulo(m_index[axis] + delta, m_shape[axis]);
+                m_address += (new_index - m_index[axis]) * m_stride[axis];
+                m_index[axis] = new_index;
+
+                return *this;
+            }
+
+            NdIteratorImpl &operator++()
             {
                 ++m_index[0];
                 m_address += m_semi_stride[0];
@@ -94,7 +134,7 @@ namespace numeric
                 {
                     if (++i == D)
                     {
-                        set_end();
+                        m_end = true;
                         break;
                     }
 
@@ -108,7 +148,7 @@ namespace numeric
 
             value_type &operator*() const
             {
-                return m_address.operator*();
+                return *m_address;
             }
 
             value_type *operator->() const
@@ -121,11 +161,31 @@ namespace numeric
                 return m_index[i];
             }
 
-            bool operator!=(NdRange const &other) const
+            bool operator!=(NdIteratorImpl const &other) const
             {
-                return m_address != other.m_address;
+                return (m_end != other.m_end)
+                    || (!m_end && m_address != other.m_address);
+            }
+
+            bool operator==(NdIteratorImpl const &other) const
+            {
+                return (m_end && other.m_end)
+                    || (!m_end && !other.m_end && m_address == other.m_address);
+            }
+
+            NdIteratorImpl &set_end()
+            {
+                m_end = true;
+                return *this;
             }
     };
+
+    template <typename LinearIterator, unsigned D>
+    using ConstNdIterator = NdIteratorImpl<LinearIterator, D, typename std::iterator_traits<LinearIterator>::value_type const>;
+
+    template <typename LinearIterator, unsigned D>
+    using NdIterator = NdIteratorImpl<LinearIterator, D, typename std::iterator_traits<LinearIterator>::value_type>;
+
     /*! @} */
 }} // namespace numeric
 
