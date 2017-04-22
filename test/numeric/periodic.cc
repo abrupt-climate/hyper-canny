@@ -41,11 +41,6 @@ class NumberIterator: public std::iterator<std::forward_iterator_tag, int>
         bool operator!=(NumberIterator const &other) const { return i != other.i; }
 };
 
-template <typename T, unsigned long D>
-std::ostream &operator<<(std::ostream &out, std::array<T,D> const &x)
-{
-    return out << "(" << string_join(x, ", ") << ")";
-}
 
 TEST (NdArray, PeriodicIterator)
 {

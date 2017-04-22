@@ -75,3 +75,14 @@ TEST (NdArray, Assignment)
             1, 0, 1, 0, 2, 2, 2, 2});
     ASSERT_EQ(a1, b2);
 }
+
+TEST (NdArray, ThreeDee)
+{
+    using numeric::NdArray;
+
+    NdArray<float, 3> a({128, 128, 128});
+    std::fill(a.begin(), a.end(), 1.0);
+
+    auto s1 = a.sel<0>(20), s2 = a.sel<2>(42);
+    ASSERT_EQ(s1, s2);
+}

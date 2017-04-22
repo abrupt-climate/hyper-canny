@@ -35,5 +35,41 @@ namespace HyperCanny { namespace numeric
 
     template <unsigned D>
     using stride_t = std::array<ptrdiff_t, D>;
+
+    template <unsigned long D>
+    stride_t<D> operator-(shape_t<D> const &a, shape_t<D> const &b)
+    {
+        stride_t<D> x;
+        for (unsigned i = 0; i < D; ++i)
+            x[i] = static_cast<ptrdiff_t>(a[i]) - b[i];
+        return x;
+    }
+
+    template <typename T, unsigned long D, typename T2>
+    std::array<T, D> operator/(std::array<T, D> const &a, T2 denom)
+    {
+        std::array<T, D> x;
+        for (unsigned i = 0; i < D; ++i)
+            x[i] = a[i] / denom;
+        return x;
+    }
+
+    template <typename T, unsigned long D, typename T2>
+    std::array<T, D> operator-(std::array<T, D> const &a, T2 y)
+    {
+        std::array<T, D> x;
+        for (unsigned i = 0; i < D; ++i)
+            x[i] = a[i] - y;
+        return x;
+    }
+
+    template <typename T, unsigned long D, typename T2>
+    std::array<T, D> operator*(std::array<T, D> const &a, T2 factor)
+    {
+        std::array<T, D> x;
+        for (unsigned i = 0; i < D; ++i)
+            x[i] = a[i] * factor;
+        return x;
+    }
     /*! @} */
 }}

@@ -18,36 +18,78 @@
  *  \brief Easy interface for FFTW real valued Fourier transforms.
  */
 
+#include "fftw_traits.hh"
+#include "support.hh"
+#include <complex>
+
 namespace HyperCanny {
 namespace numeric {
 namespace fourier
 {
+    template <typename real_t>
+    class PointerRange
+    {
+        real_t *m_data;
+        size_t m_size;
+
+        public:
+            using iterator = real_t *;
+            using const_iterator = real_t const *;
+
+            PointerRange() {}
+
+            PointerRange(real_t *data, size_t size)
+                : m_data(data)
+                , m_size(size)
+            {}
+
+            real_t *data() { return m_data; }
+            real_t *begin() { return m_data; }
+            real_t *end() { return m_data + m_size; }
+            real_t const *cbegin() const { return m_data; }
+            real_t const *cend() const { return m_data + m_size; }
+            real_t const *begin() const { return cbegin(); }
+            real_t const *end() const { return cend(); }
+
+            void set(real_t *ptr, size_t size)
+            {
+                m_data = ptr;
+                m_size = size;
+            }
+    };
+
     template <typename real_t, unsigned D>
     class RFFT
     {
         using fftw = RFFT_traits<real_t>;
         using complex_t = typename fftw::complex_t;
+        using plan_t = typename fftw::plan_t;
 
         bool const m_in_place;
         Slice<D> m_real_slice;
         Slice<D> m_freq_slice;
 
-        real_t *m_real_buffer;
-        complex_t *m_freq_buffer;
+        PointerRange<real_t> m_real_buffer;
+        PointerRange<std::complex<real_t>> m_freq_buffer;
 
-        fftw_plan m_forward_plan;
-        fftw_plan m_inverse_plan;
+        NdArrayView<real_t, D, PointerRange<real_t>> m_real_space;
+        NdArrayView<std::complex<real_t>, D, PointerRange<std::complex<real_t>>> m_freq_space;
+        // real_t *m_real_buffer;
+        // complex_t *m_freq_buffer;
+
+        plan_t m_forward_plan;
+        plan_t m_inverse_plan;
 
         public:
             RFFT() = delete;
             RFFT(RFFT const &) = delete;
             RFFT &operator=(RFFT const &) = delete;
 
-            explicit RFFT(shape_t<D> const &shape, unsigned flags, bool in_place=true);
+            explicit RFFT(shape_t<D> const &shape, unsigned flags=0, bool in_place=true);
             ~RFFT() noexcept;
 
-            NdArray<real_t,D>::View real_space();
-            NdArray<std::complex<real_t>,D>::View freq_space();
+            NdArrayView<real_t,D,PointerRange<real_t>> &real_space();
+            NdArrayView<std::complex<real_t>,D,PointerRange<std::complex<real_t>>> &freq_space();
 
             void forward();
             void inverse();
@@ -57,42 +99,66 @@ namespace fourier
     //                             IMPLEMENTATION                            //
     //=======================================================================//
 
-    template <typename real_t, unsigned D>
-    RFFT<real_t,D>::RFFT(shape_t<D> const &shape, unsigned flags, bool in_place=true)
-        : m_in_place(in_place)
+    template <unsigned long D>
+    Slice<D> compute_freq_slice(shape_t<D> shape)
     {
-        // see FFTW manual: Real-data DFT Array Format
-        // FFTW stores in row-major order, we use column-major order.
-
-        shape_t<D> real_shape = shape;
         shape_t<D> freq_shape = shape;
         freq_shape[0] = (shape[0]/2 + 1);
-        m_freq_slice = Slice(freq_shape);
+        return Slice<D>(freq_shape);        
+    }
 
-        if (m_in_place)
+    template <unsigned long D>
+    Slice<D> compute_real_slice(shape_t<D> shape, bool in_place)
+    {
+        shape_t<D> real_shape = shape;
+
+        if (in_place)
         {
             shape_t<D> real_mem_shape = shape;
             real_mem_shape[0] = 2 * (shape[0]/2 + 1);
             stride_t<D> real_stride = calc_stride(real_mem_shape);
-            m_real_slice = Slice(0, real_shape, real_stride);
-
-            m_real_buffer = fftw::alloc_real(m_real_slice.size);
-            m_freq_buffer = reinterpret_cast<complex_t *>(m_real_buffer);
+            return Slice<D>(0, real_shape, real_stride);
         }
         else
         {
-            m_real_slice = Slice(shape); 
-            m_real_buffer = fftw::alloc_real(m_real_slice.size);
-            m_freq_buffer = fftw::alloc_complex(m_freq_slice.size);
+            return Slice<D>(shape);
+        }
+    }
+
+    template <typename real_t, unsigned D>
+    RFFT<real_t,D>::RFFT(shape_t<D> const &shape, unsigned flags, bool in_place)
+        : m_in_place(in_place)
+        , m_real_slice(compute_real_slice(shape, in_place))
+        , m_freq_slice(compute_freq_slice(shape))
+        , m_real_space(m_real_slice, m_real_buffer)
+        , m_freq_space(m_freq_slice, m_freq_buffer)
+    {
+        // see FFTW manual: Real-data DFT Array Format
+        // FFTW stores in row-major order, we use column-major order.
+        if (m_in_place)
+        {
+            m_real_buffer.set(fftw::alloc_real(m_real_slice.size), m_real_slice.size);
+            m_freq_buffer.set(
+                reinterpret_cast<std::complex<real_t> *>(
+                    m_real_buffer.data()),
+                m_freq_slice.size);
+        }
+        else
+        {
+            m_real_buffer.set(fftw::alloc_real(m_real_slice.size), m_real_slice.size);
+            m_freq_buffer.set(
+                reinterpret_cast<std::complex<real_t> *>(
+                    fftw::alloc_complex(m_freq_slice.size)),
+                m_freq_slice.size);
         }
 
         int n[D];
-        std::copy(m_shape.begin(), m_shape.end(), n);
+        std::copy(shape.begin(), shape.end(), n);
 
         m_forward_plan = fftw::forward_plan(
-            D, n, m_real_buffer, m_freq_buffer, flags);
+            D, n, m_real_buffer.data(), reinterpret_cast<complex_t *>(m_freq_buffer.data()), flags);
         m_inverse_plan = fftw::inverse_plan(
-            D, n, m_freq_buffer, m_real_buffer, flags);
+            D, n, reinterpret_cast<complex_t *>(m_freq_buffer.data()), m_real_buffer.data(), flags);
     }
 
     template <typename real_t, unsigned D>
@@ -103,27 +169,25 @@ namespace fourier
 
         if (m_in_place)
         {
-            fftw::free(reinterpret_cast<void *>(m_real_buffer));
+            fftw::free(reinterpret_cast<void *>(m_real_buffer.data()));
         }
         else
         {
-            fftw::free(reinterpret_cast<void *>(m_real_buffer));
-            fftw::free(reinterpret_cast<void *>(m_freq_buffer));
+            fftw::free(reinterpret_cast<void *>(m_real_buffer.data()));
+            fftw::free(reinterpret_cast<void *>(m_freq_buffer.data()));
         }
     }
 
     template <typename real_t, unsigned D>
-    NdArray<real_t,D>::View RFFT<real_t, D>::real_space()
+    NdArrayView<real_t,D,PointerRange<real_t>> &RFFT<real_t, D>::real_space()
     {
-        return NdArray<real_t,D>::View(m_real_buffer, m_real_slice);
+        return m_real_space;
     }
 
     template <typename real_t, unsigned D>
-    NdArray<std::complex<real_t>,D>::View RFFT<real_t, D>::freq_space()
+    NdArrayView<std::complex<real_t>,D,PointerRange<std::complex<real_t>>> &RFFT<real_t, D>::freq_space()
     {
-        return NdArray<real_t,D>::View(
-            reinterpret_cast<std::complex<real_t>*>(m_freq_buffer),
-            m_freq_slice);
+        return m_freq_space;
     }
 
     template <typename real_t, unsigned D>

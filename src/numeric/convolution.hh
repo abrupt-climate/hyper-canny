@@ -18,11 +18,25 @@
  *  \brief Generic N-dimensional convolution.
  */
 
+#include "base.hh"
+#include "ndarray.hh"
+
 namespace HyperCanny {
 namespace numeric {
-    template <typename real_t, unsigned D>
-    void convolve(NdArrayBase<real_t,D> &data, NdArrayBase<real_t,D> const &kernel)
+    template <typename real_t, unsigned D, typename C1, typename C2>
+    NdArray<real_t,D> convolve(NdArrayBase<real_t,D,C1> &data, NdArrayBase<real_t,D,C2> &kernel)
     {
-        
+        NdArray<real_t,D> result(data.shape());
+
+        for (auto i = result.begin(); i != result.end(); ++i)
+        {
+            shape_t<D> index = i.index();
+            stride_t<D> window_offset = index - kernel.shape() / 2;
+            PeriodicNdArrayView<real_t,D,C1> window(data, window_offset, kernel.shape());
+            *i = std::inner_product(
+                window.begin(), window.end(),
+                kernel.reverse_all().begin(), (real_t)0.0);
+        }
+        return result;
     }
 }} // HyperCanny::numeric

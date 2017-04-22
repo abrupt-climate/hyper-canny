@@ -36,6 +36,9 @@ namespace numeric
     template <typename T, unsigned D, typename Container>
     class NdArrayView;
 
+    template <typename T, unsigned D, typename Container>
+    class NdArray;
+
     template <typename T, unsigned D, typename Container = std::vector<T>>
     class NdArrayBase
     {
@@ -74,7 +77,7 @@ namespace numeric
             iterator begin()
             {
                 return iterator(
-                    container().begin() + m_slice.offset, m_slice.shape, m_slice.stride);
+                    std::begin(container()) + m_slice.offset, m_slice.shape, m_slice.stride);
             }
 
             iterator end() { return iterator(); }
@@ -82,7 +85,7 @@ namespace numeric
             const_iterator cbegin() const
             {
                 return const_iterator(
-                    container().cbegin() + m_slice.offset, m_slice.shape, m_slice.stride);
+                    std::cbegin(container()) + m_slice.offset, m_slice.shape, m_slice.stride);
             }
 
             const_iterator cend() const { return const_iterator(); }
@@ -93,6 +96,8 @@ namespace numeric
             template <unsigned axis>
             View reverse()
                 { return View(m_slice.reverse<axis>(), container()); }
+            View reverse_all()
+                { return View(m_slice.reverse_all(), container()); }
             View transpose()
                 { return View(m_slice.transpose(), container()); }
 
@@ -101,18 +106,32 @@ namespace numeric
                 { return View(m_slice.sub<axis>(begin, end, step), container()); }
 
             template <unsigned axis>
-            typename NdArrayBase<T,D-1,Container>::View sel(size_t idx)
-                { return typename NdArrayBase<T,D-1,Container>::View(m_slice.sel<axis>(idx), container()); }
+            NdArrayView<T,D-1,Container> sel(size_t idx)
+                { return NdArrayView<T,D-1,Container>(m_slice.sel<axis>(idx), container()); }
 
             Container &data() { return container(); }
             Container const &data () const { return container(); }
             virtual Container &container() = 0;
             virtual Container const &container() const = 0;
 
+            NdArray<T, D, std::vector<T>> copy() const
+            {
+                NdArray<T, D, std::vector<T>> result(shape());
+                std::copy(cbegin(), cend(), result.begin());
+                return result;
+            }
+
             NdArrayBase &operator+=(T value)
             {
                 for (auto i = begin(); i != end(); ++i)
                     *i += value;
+                return *this;
+            }
+
+            NdArrayBase &operator*=(T value)
+            {
+                for (auto i = begin(); i != end(); ++i)
+                    *i *= value;
                 return *this;
             }
 
@@ -131,12 +150,14 @@ namespace numeric
                 return *this;
             }
 
-            bool operator==(NdArrayBase const &other) const
+            template <typename T2>
+            bool operator==(T2 const &other) const
             {
                 return (shape() == other.shape()) && std::equal(begin(), end(), other.begin());
             }
 
-            bool operator!=(NdArrayBase const &other) const
+            template <typename T2>
+            bool operator!=(T2 const &other) const
             {
                 return (shape() != other.shape()) || !std::equal(begin(), end(), other.begin());
             }
@@ -204,6 +225,8 @@ namespace numeric
         Container &m_container;
 
         public:
+            NdArrayView() {}
+
             NdArrayView(Slice<D> const &slice, Container &data):
                 Base(slice),
                 m_container(data)
@@ -212,9 +235,15 @@ namespace numeric
             virtual Container &container() { return m_container; }
             virtual Container const &container() const { return m_container; }
 
+            template <typename T2>
+            NdArrayView &operator*=(T2 const &other) { Base::operator*=(other); return *this; }
             NdArrayView &operator=(NdArrayView const &other) { Base::operator=(other); return *this; }
             NdArrayView &operator=(Base const &other) { Base::operator=(other); return *this; }
-            NdArrayView &operator=(T value) { Base::operator=(value); return *this; }
+            template <typename T2>
+            NdArrayView &operator=(T2 value) { Base::operator=(value); return *this; }
+
+            //template <typename T2>
+            //bool operator==(T2 const &other) const { return Base::operator==(other); }
     };
 
     template <typename T, unsigned D, typename Container = std::vector<T>>
@@ -280,14 +309,11 @@ namespace numeric
             }
     };
 
-    template <typename T>
-    class NdArrayBase<T,0>
+    template <typename T, typename Container>
+    class NdArrayView<T,0,Container>
     {
         public:
-            class View {
-                public:
-                    View(Slice<0> const &, T *data) {}
-            };
+            NdArrayView(Slice<0> const &, Container &data) {}
     };
 
     /*! @} */

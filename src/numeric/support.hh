@@ -21,10 +21,12 @@
 #include <array>
 #include <cstdint>
 #include "types.hh"
+#include "../base.hh"
+
 
 namespace HyperCanny { namespace numeric
 {
-    template <unsigned D>
+    template <unsigned long D>
     inline stride_t<D> calc_stride(shape_t<D> const &shape)
     {
         stride_t<D> stride;
@@ -104,4 +106,12 @@ namespace HyperCanny { namespace numeric
 
         return semi_stride;
     }
-}}
+}
+
+template <typename T, unsigned long D>
+std::ostream &operator<<(std::ostream &out, std::array<T,D> const &x)
+{
+    return out << "(" << string_join(x, ", ") << ")";
+}
+
+}

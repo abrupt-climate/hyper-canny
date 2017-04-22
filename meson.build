@@ -74,7 +74,7 @@ test_base = executable('test-base', src_base_files, test_base_files,
 
 test_numeric = executable('test-numeric',
     src_base_files, src_numeric_files, test_numeric_files,
-    dependencies: [netcdf_dep, fftw_dep, fftwf_dep],
+    dependencies: [netcdf_dep, fftw_dep, fftwf_dep, libpng_dep],
     link_with: [gtest_static],
     link_args: ['-lpthread', '-lstdc++fs'],
     include_directories: [local_include, gtest_include])

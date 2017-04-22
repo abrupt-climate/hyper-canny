@@ -53,7 +53,7 @@ namespace HyperCanny { namespace numeric
             /*! \brief Constructs a slice with all members given.
              */
             Slice(size_t offset, shape_t<D> const &shape, stride_t<D> const &stride):
-                offset(offset), size(calc_size<D>(shape)),
+                offset(offset), size(stride[D-1] * shape[D-1]),
                 shape(shape),
                 stride(stride)
             {}
@@ -91,7 +91,7 @@ namespace HyperCanny { namespace numeric
             /*! \brief Take a sub-section of the slice in one axis.
              */
             template <unsigned axis>
-            Slice<D> sub(size_t begin, size_t end, int step = 1)
+            Slice<D> sub(size_t begin, size_t end, int step = 1) const
             {
                 size_t new_offset = offset + begin * stride[axis];
                 stride_t<D> new_stride = stride;
@@ -104,7 +104,7 @@ namespace HyperCanny { namespace numeric
             /*! \brief Select a row, reducing the dimensionality by one.
              */
             template <unsigned axis>
-            Slice<D-1> sel(size_t idx)
+            Slice<D-1> sel(size_t idx) const
             {
                 size_t new_offset = offset + idx * stride[axis];
                 stride_t<D-1> new_stride = reduce_one<D, axis>(stride);
@@ -119,11 +119,18 @@ namespace HyperCanny { namespace numeric
              *  has changed.
              */
             template <unsigned axis>
-            Slice<D> reverse()
+            Slice<D> reverse() const
             {
                 size_t new_offset = offset + stride[axis] * (shape[axis] - 1);
                 stride_t<D> new_stride = stride;
                 new_stride[axis] = -stride[axis];
+                return Slice<D>(new_offset, shape, new_stride);
+            }
+
+            Slice<D> reverse_all() const
+            {
+                size_t new_offset = flat_index(shape - 1);
+                stride_t<D> new_stride = stride * -1;
                 return Slice<D>(new_offset, shape, new_stride);
             }
     };

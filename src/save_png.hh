@@ -21,6 +21,7 @@
 #include <cmath>
 #include <png++/png.hpp>
 #include <tuple>
+#include <algorithm>
 
 namespace HyperCanny
 {
@@ -61,13 +62,15 @@ namespace HyperCanny
     {
         std::cerr << "<<< writing image to " << filename << " ... ";
         png::image<png::rgb_pixel> image(width, height);
+        T lower_bound = *std::min_element(data.begin(), data.end());
+        T upper_bound = *std::max_element(data.begin(), data.end());
 
         for (unsigned j = 0; j < height; ++j)
         {
             for (unsigned i = 0; i < width; ++i)
             {
                 // TODO: use std::apply once C++17 is mainstream.
-                auto c = palette(data[i + j*width]);
+                auto c = palette((data[i + j*width] - lower_bound)/(upper_bound - lower_bound));
                 image[j][i] = png::rgb_pixel(std::get<0>(c), std::get<1>(c), std::get<2>(c));
             }
         }
