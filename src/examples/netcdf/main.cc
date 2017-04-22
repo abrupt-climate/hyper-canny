@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     Console::Log console("testing write and read to NetCDF file");
     auto long_data = numeric::hilbert_array(10);
     auto data = NdArray<int,2>(long_data.shape());
-    data = long_data;
+    std::copy(long_data.begin(), long_data.end(), data.begin());
 
     {   // write a test file
         console.msg("writing ...");

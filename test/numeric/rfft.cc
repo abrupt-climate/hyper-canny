@@ -1,9 +1,23 @@
+/* Copyright 2017 Netherlands eScience Center
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 #include <gtest/gtest.h>
 
 #include "base.hh"
 #include "numeric/convolution.hh"
 #include "numeric/rfft.hh"
-#include "save_png.hh"
+// #include "save_png.hh"
 
 #include <random>
 #include <cmath>
@@ -47,9 +61,9 @@ TEST (Fourier, Convolution)
         std::normal_distribution<float>(0.0, 1.0), std::mt19937());
 
     constexpr unsigned D = 2;
-    shape_t<D> data_shape   { 256, 256 },
+    shape_t<D> data_shape   {  64,  64 },
                kernel_shape {  16,  16 };
-    size_t N = 256 * 256;
+    size_t N = 64 * 64;
 
     RFFT<float, D> fft_data(data_shape);
     std::generate(fft_data.real_space().begin(), fft_data.real_space().end(), noise);
@@ -60,7 +74,6 @@ TEST (Fourier, Convolution)
     timer.start("Brute force convolution");
     auto result1 = convolve(fft_data.real_space(), kernel);
     timer.stop();
-    save_png("test1.png", data_shape[0], data_shape[1], result1.container(), colour_map::rainbow);
 
     RFFT<float, D> fft_kernel(data_shape);
     fft_kernel.real_space() = 0.0f;
@@ -87,7 +100,6 @@ TEST (Fourier, Convolution)
     timer.stop();
 
     auto result2 = fft_data.real_space().copy();
-    save_png("test2.png", data_shape[0], data_shape[1], result2.container(), colour_map::rainbow);
 
     assert_array_equal(fft_data.real_space(), result1);
 }

@@ -65,7 +65,7 @@ namespace fourier
         using complex_t = typename fftw::complex_t;
         using plan_t = typename fftw::plan_t;
 
-        bool const m_in_place;
+        bool m_in_place;
         Slice<D> m_real_slice;
         Slice<D> m_freq_slice;
 
