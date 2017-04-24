@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <initializer_list>
+#include <type_traits>
 
 namespace HyperCanny {
 namespace numeric
@@ -33,61 +34,185 @@ namespace numeric
     /*! \addtogroup NdArrays
      * @{
      */
+    template <typename T, unsigned D, typename Container = std::vector<T>>
+    class NdArrayBase
+    {
+        public:
+            virtual ~NdArrayBase() {}
+
+            virtual Container &container() = 0;
+            virtual Container const &container() const = 0;
+
+            virtual shape_t<D> const &shape() const = 0;
+    };
+
     template <typename T, unsigned D, typename Container>
     class NdArrayView;
 
     template <typename T, unsigned D, typename Container>
+    class ConstNdArrayView;
+
+    template <typename T, unsigned D, typename Container>
     class NdArray;
 
-    template <typename T, unsigned D, typename Container = std::vector<T>>
-    class NdArrayBase
+    template <typename ArrayT>
+    struct array_traits;
+
+    template <typename T, unsigned D, typename Container>
+    struct array_traits<NdArray<T, D, Container>>
     {
-        protected:
-            Slice<D> m_slice;
+        static constexpr unsigned dimension = D;
+        using container_type = Container;
+        using value_type = T;
+        using iterator = NdIterator<typename Container::iterator, D>;
+        using const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
+        using base_type = NdArrayBase<T, D, Container>;
+    };
+
+    template <typename T, unsigned D, typename Container>
+    struct array_traits<NdArrayView<T, D, Container>>
+    {
+        static constexpr unsigned dimension = D;
+        using container_type = Container;
+        using value_type = T;
+        using iterator = NdIterator<typename Container::iterator, D>;
+        using const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
+        using base_type = NdArrayBase<T, D, Container>;
+    };
+
+    template <typename T, unsigned D, typename Container>
+    struct array_traits<ConstNdArrayView<T, D, Container>>
+    {
+        static constexpr unsigned dimension = D;
+        using container_type = Container;
+        using value_type = T;
+        using iterator = ConstNdIterator<typename Container::const_iterator, D>;
+        using const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
+        using base_type = NdArrayBase<T, D, Container>;
+    };
+
+    template <typename T, unsigned D, typename Container = std::vector<T>>
+    class PeriodicNdArrayView: public NdArrayBase<T, D, Container>
+    {
+        using Base = NdArrayBase<T, D, Container>;
+
+        Container &m_container;
+        Slice<D>   m_slice;
+        shape_t<D> m_offset;
+        shape_t<D> m_shape;
 
         public:
-            using View = NdArrayView<T,D,Container>;
-            using iterator = NdIterator<typename Container::iterator, D>;
-            using const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
+            using base_iterator = NdIterator<typename Container::iterator, D>;
+            using iterator = PeriodicIterator<base_iterator>;
+            using base_const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
+            using const_iterator = PeriodicIterator<base_const_iterator>;
 
-            NdArrayBase() {}
+            shape_t<D> const &shape() const { return m_shape; }
 
-            explicit NdArrayBase(shape_t<D> const &shape):
-                m_slice(shape)
+            PeriodicNdArrayView(
+                    Container &data,
+                    Slice<D> const &slice,
+                    stride_t<D> const &offset,
+                    shape_t<D> const &shape)
+                : m_container(data)
+                , m_slice(slice)
+                , m_offset(modulo(offset, slice.shape))
+                , m_shape(shape)
             {}
 
-            NdArrayBase(size_t offset, shape_t<D> const &shape, stride_t<D> const &stride):
-                m_slice(offset, shape, stride)
-            {}
-
-            explicit NdArrayBase(Slice<D> const &slice):
-                m_slice(slice)
-            {}
-
-            virtual ~NdArrayBase() {}
-
-            Slice<D> const &slice() const { return m_slice; }
-            shape_t<D> const &shape() const { return m_slice.shape; }
-            stride_t<D> const &stride() const { return m_slice.stride; }
-            size_t offset() const { return m_slice.offset; }
-            size_t shape(unsigned i) const { return m_slice.shape[i]; }
-
-            size_t size() const { return m_slice.size; }
+            PeriodicNdArrayView &set_offset(stride_t<D> const &offset)
+            {
+                m_offset = modulo(offset, this->shape());
+                return *this;
+            }
 
             iterator begin()
             {
                 return iterator(
-                    std::begin(container()) + m_slice.offset, m_slice.shape, m_slice.stride);
+                    base_iterator(m_container.begin(), m_slice, m_offset),
+                    m_shape);
+            }
+            iterator end() { return iterator(); }
+
+            const_iterator begin() const { return cbegin(); }
+            const_iterator end() const { return cend(); }
+
+            const_iterator cbegin() const
+            {
+                return const_iterator(
+                    base_const_iterator(m_container.cbegin(), m_slice, m_offset),
+                    m_shape);
+            }
+            const_iterator cend() const { return const_iterator(); }
+
+            virtual Container &container() { return m_container; }
+            virtual Container const &container() const { return m_container; }
+
+            template <typename T2>
+            bool operator==(T2 const &other) const
+                // typename std::enable_if<std::is_base_of<nd_array_tag, T>::value, T>::type const &other) const
+            {
+                return (shape() == other.shape()) && std::equal(begin(), end(), other.begin());
             }
 
+            template <typename T2>
+            bool operator!=(T2 const &other) const
+                // typename std::enable_if<std::is_base_of<nd_array_tag, T>::value, T>::type const &other) const
+            {
+                return (shape() != other.shape()) || !std::equal(begin(), end(), other.begin());
+            }
+    };
+
+    template <typename Derived>
+    class NdArrayImpl: public array_traits<Derived>::base_type
+    {
+        using traits = array_traits<Derived>;
+        static constexpr unsigned D = traits::dimension;
+
+        protected:
+            Slice<D> m_slice;
+
+        public:
+            using value_type = typename traits::value_type;
+            using container_type = typename traits::container_type;
+            using iterator = typename traits::iterator;
+            using const_iterator = typename traits::const_iterator;
+            using View = NdArrayView<value_type, D, container_type>;
+            using ConstView = ConstNdArrayView<value_type, D, container_type>;
+
+            Slice<D> const &slice() const { return m_slice; }
+            size_t offset() const { return m_slice.offset; }
+            size_t shape(unsigned i) const { return m_slice.shape[i]; }
+            shape_t<D> const &shape() const { return m_slice.shape; }
+            size_t size() const { return m_slice.size; }
+            stride_t<D> const &stride() const { return m_slice.stride; }
+
+            NdArrayImpl() {}
+
+            explicit NdArrayImpl(shape_t<D> const &shape):
+                m_slice(shape)
+            {}
+
+            NdArrayImpl(size_t offset, shape_t<D> const &shape, stride_t<D> const &stride):
+                m_slice(offset, shape, stride)
+            {}
+
+            explicit NdArrayImpl(Slice<D> const &slice):
+                m_slice(slice)
+            {}
+
+            iterator begin()
+            {
+                return iterator(
+                    std::begin(this->container()) + offset(), shape(), stride());
+            }
             iterator end() { return iterator(); }
 
             const_iterator cbegin() const
             {
                 return const_iterator(
-                    std::cbegin(container()) + m_slice.offset, m_slice.shape, m_slice.stride);
+                    std::cbegin(this->container()) + offset(), shape(), stride());
             }
-
             const_iterator cend() const { return const_iterator(); }
 
             const_iterator begin() const { return cbegin(); }
@@ -95,69 +220,88 @@ namespace numeric
 
             template <unsigned axis>
             View reverse()
-                { return View(m_slice.reverse<axis>(), container()); }
+                { return View(m_slice.reverse<axis>(), this->container()); }
+            template <unsigned axis>
+            ConstView reverse() const
+                { return View(m_slice.reverse<axis>(), this->container()); }
+
             View reverse_all()
-                { return View(m_slice.reverse_all(), container()); }
+                { return View(m_slice.reverse_all(), this->container()); }
+            ConstView reverse_all() const
+                { return ConstView(m_slice.reverse_all(), this->container()); }
+
             View transpose()
-                { return View(m_slice.transpose(), container()); }
+                { return View(m_slice.transpose(), this->container()); }
+            View transpose() const
+                { return ConstView(m_slice.transpose(), this->container()); }
 
             template <unsigned axis>
             View sub(size_t begin, size_t end, size_t step = 1)
-                { return View(m_slice.sub<axis>(begin, end, step), container()); }
+                { return View(m_slice.sub<axis>(begin, end, step), this->container()); }
+            template <unsigned axis>
+            ConstView sub(size_t begin, size_t end, size_t step = 1) const
+                { return ConstView(m_slice.sub<axis>(begin, end, step), this->container()); }
 
             template <unsigned axis>
-            NdArrayView<T,D-1,Container> sel(size_t idx)
-                { return NdArrayView<T,D-1,Container>(m_slice.sel<axis>(idx), container()); }
+            NdArrayView<value_type, D-1, container_type> sel(size_t idx)
+                { return NdArrayView<value_type, D-1, container_type>(
+                        m_slice.sel<axis>(idx), this->container()); }
+            template <unsigned axis>
+            ConstNdArrayView<value_type, D-1, container_type> sel(size_t idx) const
+                { return ConstNdArrayView<value_type, D-1, container_type>(
+                        m_slice.sel<axis>(idx), this->container()); }
 
-            Container &data() { return container(); }
-            Container const &data () const { return container(); }
-            virtual Container &container() = 0;
-            virtual Container const &container() const = 0;
-
-            NdArray<T, D, std::vector<T>> copy() const
+            PeriodicNdArrayView<value_type, D, container_type> periodic_view(
+                    stride_t<D> const &offset, shape_t<D> const &shape)
             {
-                NdArray<T, D, std::vector<T>> result(shape());
+                return PeriodicNdArrayView<value_type, D, container_type>(
+                    this->container(), slice(), offset, shape);
+            }
+
+            NdArray<value_type, D, std::vector<value_type>> copy() const
+            {
+                NdArray<value_type, D, std::vector<value_type>> result(shape());
                 std::copy(cbegin(), cend(), result.begin());
                 return result;
             }
 
-            NdArrayBase &operator+=(T value)
+            Derived &operator+=(value_type value)
             {
                 for (auto i = begin(); i != end(); ++i)
                     *i += value;
-                return *this;
+                return static_cast<Derived &>(*this);
             }
 
-            NdArrayBase &operator*=(T value)
+            Derived &operator*=(value_type value)
             {
                 for (auto i = begin(); i != end(); ++i)
                     *i *= value;
-                return *this;
+                return static_cast<Derived &>(*this);
             }
 
-            template <typename T2>
-            NdArrayBase &operator=(T2 const &other)
+            template <typename T>
+            Derived &operator=(T const &other)
             {
                 if (shape() != other.shape())
                     throw "shapes of arrays do not match.";
                 std::copy(other.cbegin(), other.cend(), begin());
-                return *this;
+                return static_cast<Derived &>(*this);
             }
 
-            NdArrayBase &operator=(T value)
+            Derived &operator=(value_type value)
             {
                 std::fill(begin(), end(), value);
-                return *this;
+                return static_cast<Derived &>(*this);
             }
 
-            template <typename T2>
-            bool operator==(T2 const &other) const
+            template <typename T>
+            bool operator==(T const &other) const
             {
                 return (shape() == other.shape()) && std::equal(begin(), end(), other.begin());
             }
 
-            template <typename T2>
-            bool operator!=(T2 const &other) const
+            template <typename T>
+            bool operator!=(T const &other) const
             {
                 return (shape() != other.shape()) || !std::equal(begin(), end(), other.begin());
             }
@@ -171,8 +315,9 @@ namespace numeric
      * the way in which we iterate the data.
      */
     template <typename T, unsigned D, typename Container = std::vector<T>>
-    class NdArray: public NdArrayBase<T, D>
+    class NdArray: public NdArrayImpl<NdArray<T, D, Container>>
     {
+        using Base = NdArrayImpl<NdArray>;
         Container m_container;
 
         public:
@@ -180,12 +325,12 @@ namespace numeric
             NdArray() {}
 
             explicit NdArray(shape_t<D> const &shape):
-                NdArrayBase<T, D>(shape),
+                NdArrayImpl<NdArray>(shape),
                 m_container(calc_size<D>(shape))
             {}
 
             NdArray(shape_t<D> const &shape, T value):
-                NdArrayBase<T, D>(shape),
+                NdArrayImpl<NdArray>(shape),
                 m_container(calc_size<D>(shape), value)
             {}
 
@@ -214,14 +359,17 @@ namespace numeric
             virtual Container &container() { return m_container; }
             virtual Container const &container() const { return m_container; }
 
-            template <typename T2>
-            NdArray &operator=(NdArrayBase<T2, D> const &other) { NdArrayBase<T, D>::operator=(other); return *this; }
+            using Base::operator=;
+            //NdArray &operator=(NdArray const &other) { return Base::operator=(other); }
+            //template <typename T2>
+            //NdArray &operator=(T2 const &other) { return Base::operator=(other); }
     };
 
     template <typename T, unsigned D, typename Container = std::vector<T>>
-    class NdArrayView: public NdArrayBase<T, D, Container>
+    class NdArrayView: public NdArrayImpl<NdArrayView<T, D, Container>>
     {
-        using Base = NdArrayBase<T, D, Container>;
+        using Base = NdArrayImpl<NdArrayView>;
+
         Container &m_container;
 
         public:
@@ -235,78 +383,29 @@ namespace numeric
             virtual Container &container() { return m_container; }
             virtual Container const &container() const { return m_container; }
 
+            // using Base::operator=;
+            NdArrayView &operator=(NdArrayView const &other) { return Base::operator=(other); }
             template <typename T2>
-            NdArrayView &operator*=(T2 const &other) { Base::operator*=(other); return *this; }
-            NdArrayView &operator=(NdArrayView const &other) { Base::operator=(other); return *this; }
-            NdArrayView &operator=(Base const &other) { Base::operator=(other); return *this; }
-            template <typename T2>
-            NdArrayView &operator=(T2 value) { Base::operator=(value); return *this; }
-
-            //template <typename T2>
-            //bool operator==(T2 const &other) const { return Base::operator==(other); }
+            NdArrayView &operator=(T2 const &other) { return Base::operator=(other); }
     };
 
     template <typename T, unsigned D, typename Container = std::vector<T>>
-    class PeriodicNdArrayView: public NdArrayView<T, D, Container>
+    class ConstNdArrayView: public NdArrayImpl<ConstNdArrayView<T, D, Container>>
     {
-        using Base = NdArrayView<T, D, Container>;
-
-        shape_t<D> m_offset;
-        shape_t<D> m_shape;
+        Container const &m_container;
 
         public:
-            using base_iterator = typename Base::iterator;
-            using iterator = PeriodicIterator<base_iterator>;
-            using base_const_iterator = typename Base::const_iterator;
-            using const_iterator = PeriodicIterator<base_const_iterator>;
+            ConstNdArrayView() {}
 
-            shape_t<D> const &shape() const { return m_shape; }
-
-            PeriodicNdArrayView(
-                    NdArrayBase<T, D, Container> &data,
-                    stride_t<D> const &offset,
-                    shape_t<D> const &shape)
-                : NdArrayView<T, D, Container>(data.slice(), data.container())
-                , m_offset(modulo(offset, data.shape()))
-                , m_shape(shape)
+            ConstNdArrayView(Slice<D> const &slice, Container &data):
+                NdArrayImpl<ConstNdArrayView>(slice),
+                m_container(data)
             {}
 
-            PeriodicNdArrayView &set_offset(stride_t<D> const &offset)
-            {
-                m_offset = modulo(offset, this->shape());
-                return *this;
-            }
+            virtual Container const &container() const { return m_container; }
 
-            iterator begin()
-            {
-                return iterator(
-                    base_iterator(this->container().begin(), this->slice(), m_offset),
-                    m_shape);
-            }
-            iterator end() { return iterator(); }
-
-            const_iterator begin() const { return cbegin(); }
-            const_iterator end() const { return cend(); }
-
-            const_iterator cbegin() const
-            {
-                return const_iterator(
-                    base_const_iterator(this->container().cbegin(), this->slice(), m_offset),
-                    m_shape);
-            }
-            const_iterator cend() const { return const_iterator(); }
-
-            template <typename Array>
-            bool operator!=(Array const &other) const
-            {
-                return (shape() != other.shape()) || !std::equal(begin(), end(), other.begin());
-            }
-
-            template <typename Array>
-            bool operator==(Array const &other) const
-            {
-                return (shape() == other.shape()) && std::equal(begin(), end(), other.begin());
-            }
+        private:
+            virtual Container &container(); // NI
     };
 
     template <typename T, typename Container>

@@ -52,7 +52,6 @@ TEST (Fourier, Convolution)
 {
     using numeric::NdArray;
     using numeric::convolve;
-    using numeric::PeriodicNdArrayView;
     using numeric::fourier::RFFT;
     using numeric::shape_t;
 
@@ -78,8 +77,7 @@ TEST (Fourier, Convolution)
 
     RFFT<float, D> fft_kernel(data_shape);
     fft_kernel.real_space() = 0.0f;
-    PeriodicNdArrayView<float, D, numeric::fourier::PointerRange<float>> kernel_view(
-        fft_kernel.real_space(), {-7,-7}, {16,16});
+    auto kernel_view = fft_kernel.real_space().periodic_view({-7,-7}, {16,16});
     std::copy(kernel.begin(), kernel.end(), kernel_view.begin());
 
     timer.start("Fourier convolution");

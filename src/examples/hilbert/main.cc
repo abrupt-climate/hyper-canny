@@ -20,7 +20,7 @@
 using namespace HyperCanny;
 
 template <typename T>
-void write(numeric::NdArrayBase<T, 2> const &image)
+void write(numeric::NdArray<T, 2> const &image)
 {
     auto shape = image.shape();
     auto flat = image.cbegin();

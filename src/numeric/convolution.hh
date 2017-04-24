@@ -26,16 +26,20 @@
 
 namespace HyperCanny {
 namespace numeric {
-    template <typename real_t, unsigned D, typename C1, typename C2>
-    NdArray<real_t,D> convolve(NdArrayBase<real_t,D,C1> &data, NdArrayBase<real_t,D,C2> &kernel)
+    template <typename C1, typename C2>
+    NdArray<typename array_traits<C1>::value_type, array_traits<C1>::dimension> convolve(C1 &data, C2 &kernel)
     {
+        // using DataContainer = typename array_traits<C1>::container_type;
+        using real_t = typename array_traits<C1>::value_type;
+        constexpr unsigned D = array_traits<C1>::dimension;
+
         NdArray<real_t,D> result(data.shape());
 
         for (auto i = result.begin(); i != result.end(); ++i)
         {
             shape_t<D> index = i.index();
             stride_t<D> window_offset = index - kernel.shape() / 2;
-            PeriodicNdArrayView<real_t,D,C1> window(data, window_offset, kernel.shape());
+            auto window = data.periodic_view(window_offset, kernel.shape());
             *i = std::inner_product(
                 window.begin(), window.end(),
                 kernel.reverse_all().begin(), (real_t)0.0);

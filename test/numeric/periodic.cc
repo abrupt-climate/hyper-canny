@@ -59,11 +59,10 @@ TEST (NdArray, PeriodicIterator)
 TEST (NdArray, PeriodicRange)
 {
     using numeric::NdArray;
-    using numeric::PeriodicNdArrayView;
 
     NdArray<int,2> a1({2, 2}, {1, 2, 3, 4}),
                    b1({3, 3}, {4, 3, 4, 2, 1, 2, 4, 3, 4});
 
-    PeriodicNdArrayView<int,2> r1(a1, {1, 1}, {3, 3});
+    auto r1 = a1.periodic_view({1, 1}, {3, 3});
     ASSERT_EQ(r1, b1);
 }
