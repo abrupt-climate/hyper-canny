@@ -27,6 +27,7 @@
 #include <vector>
 #include <initializer_list>
 #include <type_traits>
+#include <algorithm>
 
 namespace HyperCanny {
 namespace numeric
@@ -51,6 +52,9 @@ namespace numeric
 
     template <typename T, unsigned D, typename Container>
     class ConstNdArrayView;
+
+    template <typename T, unsigned D, typename Container>
+    class PeriodicNdArrayView;
 
     template <typename T, unsigned D, typename Container>
     class NdArray;
@@ -160,6 +164,15 @@ namespace numeric
                 // typename std::enable_if<std::is_base_of<nd_array_tag, T>::value, T>::type const &other) const
             {
                 return (shape() != other.shape()) || !std::equal(begin(), end(), other.begin());
+            }
+
+            template <typename T2>
+            PeriodicNdArrayView &operator=(T2 const &other)
+            {
+                if (shape() != other.shape())
+                    throw "shapes of arrays do not match.";
+                std::copy(other.cbegin(), other.cend(), begin());
+                return *this;
             }
     };
 
@@ -272,10 +285,25 @@ namespace numeric
                 return static_cast<Derived &>(*this);
             }
 
+            template <typename T>
+            Derived &operator*=(T const &other)
+            {
+                std::transform(begin(), end(), other.cbegin(), begin(),
+                    [] (auto a, auto b) { return a * b; });
+                return static_cast<Derived &>(*this);
+            }
+
             Derived &operator*=(value_type value)
             {
-                for (auto i = begin(); i != end(); ++i)
-                    *i *= value;
+                std::transform(begin(), end(), begin(),
+                    [value] (auto a) { return a * value; });
+                return static_cast<Derived &>(*this);
+            }
+
+            Derived &operator/=(value_type value)
+            {
+                std::transform(begin(), end(), begin(),
+                    [value] (auto a) { return a / value; });
                 return static_cast<Derived &>(*this);
             }
 
@@ -404,8 +432,8 @@ namespace numeric
 
             virtual Container const &container() const { return m_container; }
 
-        private:
-            virtual Container &container(); // NI
+            virtual Container &container() = delete;
+            ConstNdArrayView &operator=(ConstNdArrayView const &other) = delete;
     };
 
     template <typename T, typename Container>

@@ -25,18 +25,6 @@
 
 using namespace HyperCanny;
 
-template <typename ...Args>
-class Zip
-{
-    public:
-        class iterator: public std::iterator<std::forward_iterator_tag, std::tuple<typename Args::value_type...>>
-        {
-            std::tuple<typename Args::iterator...> iterators;
-            public:
-
-        };
-};
-
 template <typename T1, typename T2>
 inline void assert_array_equal(T1 const &a, T2 const &b, double eps=1e-4)
 {
@@ -61,9 +49,14 @@ TEST (Fourier, Convolution)
         std::normal_distribution<float>(0.0, 1.0), std::mt19937());
 
     constexpr unsigned D = 2;
-    shape_t<D> data_shape   {  64,  64 },
-               kernel_shape {  16,  16 };
-    size_t N = 64 * 64;
+    shape_t<D> data_shape   {  64, 128 },
+               kernel_shape {   8,   8 };
+    size_t N = 64 * 128;
+
+    //constexpr unsigned D = 3;
+    //shape_t<D> data_shape   {  64,  32, 128 },
+    //           kernel_shape {   8,   8,   8 };
+    //size_t N = 64 * 32 * 128;
 
     RFFT<float, D> fft_data(data_shape);
     std::generate(fft_data.real_space().begin(), fft_data.real_space().end(), noise);
@@ -77,24 +70,15 @@ TEST (Fourier, Convolution)
 
     RFFT<float, D> fft_kernel(data_shape);
     fft_kernel.real_space() = 0.0f;
-    auto kernel_view = fft_kernel.real_space().periodic_view({-7,-7}, {16,16});
-    std::copy(kernel.begin(), kernel.end(), kernel_view.begin());
+    auto kernel_view = fft_kernel.real_space().periodic_view({-3, -3}, kernel_shape);
+    kernel_view = kernel;
 
     timer.start("Fourier convolution");
     fft_data.forward();
     fft_kernel.forward();
-    std::transform(
-        fft_data.freq_space().container().begin(), fft_data.freq_space().container().end(),
-        fft_kernel.freq_space().container().begin(),
-        fft_data.freq_space().container().begin(),
-        [] (auto a, auto b) { return a * b; });
+    fft_data.freq_space() *= fft_kernel.freq_space();
     fft_data.inverse();
-    std::transform(
-        fft_data.real_space().begin(), fft_data.real_space().end(),
-        fft_data.real_space().begin(),
-        [N] (auto a) {
-            return a / N;
-        });
+    fft_data.real_space() /= N;
     timer.stop();
 
     assert_array_equal(fft_data.real_space(), result1);

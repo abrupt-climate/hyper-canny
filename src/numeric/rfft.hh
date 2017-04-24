@@ -104,7 +104,7 @@ namespace fourier
     {
         shape_t<D> freq_shape = shape;
         freq_shape[0] = (shape[0]/2 + 1);
-        return Slice<D>(freq_shape);        
+        return Slice<D>(freq_shape);
     }
 
     template <unsigned long D>
@@ -153,7 +153,7 @@ namespace fourier
         }
 
         int n[D];
-        std::copy(shape.begin(), shape.end(), n);
+        std::copy(shape.rbegin(), shape.rend(), n);
 
         m_forward_plan = fftw::forward_plan(
             D, n, m_real_buffer.data(), reinterpret_cast<complex_t *>(m_freq_buffer.data()), flags);

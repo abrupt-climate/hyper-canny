@@ -29,7 +29,6 @@ namespace numeric {
     template <typename C1, typename C2>
     NdArray<typename array_traits<C1>::value_type, array_traits<C1>::dimension> convolve(C1 &data, C2 &kernel)
     {
-        // using DataContainer = typename array_traits<C1>::container_type;
         using real_t = typename array_traits<C1>::value_type;
         constexpr unsigned D = array_traits<C1>::dimension;
 
