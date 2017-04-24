@@ -21,6 +21,9 @@
 #include "base.hh"
 #include "ndarray.hh"
 
+#include <numeric>
+#include <algorithm>
+
 namespace HyperCanny {
 namespace numeric {
     template <typename real_t, unsigned D, typename C1, typename C2>

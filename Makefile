@@ -9,5 +9,5 @@ build:
 clean:
 	ninja -C build -t clean
 
-test:
+test: build
 	ninja -C build test

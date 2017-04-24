@@ -21,6 +21,7 @@
 
 #include <random>
 #include <cmath>
+#include <algorithm>
 
 using namespace HyperCanny;
 
@@ -32,19 +33,19 @@ class Zip
         {
             std::tuple<typename Args::iterator...> iterators;
             public:
-                
+
         };
 };
 
 template <typename T1, typename T2>
-inline void assert_array_equal(T1 const &a, T2 const &b, double eps=1e-5)
+inline void assert_array_equal(T1 const &a, T2 const &b, double eps=1e-4)
 {
     ASSERT_EQ(a.shape(), b.shape()) << "arrays should have same shape.";
     ASSERT_TRUE(std::equal(a.begin(), a.end(), b.begin(),
         [eps] (auto k, auto l)
     {
-        return abs(k - l) < eps;
-    })) << "arrays should be equal to " << eps;
+        return std::abs(k - l) < eps;
+    })) << "arrays should be equal to an abs error of " << eps;
 }
 
 TEST (Fourier, Convolution)
