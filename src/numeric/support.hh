@@ -62,6 +62,21 @@ namespace HyperCanny { namespace numeric
         return result;
     }
 
+    template <typename T, unsigned long D>
+    inline std::array<T,D-1> reduce_one(std::array<T,D> const &x, unsigned i)
+    {
+        std::array<T,D-1> result;
+        for (unsigned j = 0, k = 0; j < D; ++j)
+        {
+            if (j != i)
+            {
+                result[k] = x[j];
+                ++k;
+            }
+        }
+        return result;
+    }
+
 	/*!
 	 * calculates a mod b, by the mathematical definition:
 	 * the C operator % does not give the right answer if a < 0

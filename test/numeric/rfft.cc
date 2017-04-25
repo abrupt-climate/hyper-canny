@@ -43,7 +43,7 @@ TEST (Fourier, Convolution)
     using numeric::fourier::RFFT;
     using numeric::shape_t;
 
-    Timer timer;
+    // Timer timer;
 
     auto noise = std::bind(
         std::normal_distribution<float>(0.0, 1.0), std::mt19937());
@@ -64,22 +64,22 @@ TEST (Fourier, Convolution)
     NdArray<float, D> kernel(kernel_shape);
     std::generate(kernel.container().begin(), kernel.container().end(), noise);
 
-    timer.start("Brute force convolution");
+    // timer.start("Brute force convolution");
     auto result1 = convolve(fft_data.real_space(), kernel);
-    timer.stop();
+    // timer.stop();
 
     RFFT<float, D> fft_kernel(data_shape);
     fft_kernel.real_space() = 0.0f;
     auto kernel_view = fft_kernel.real_space().periodic_view({-3, -3}, kernel_shape);
     kernel_view = kernel;
 
-    timer.start("Fourier convolution");
+    // timer.start("Fourier convolution");
     fft_data.forward();
     fft_kernel.forward();
     fft_data.freq_space() *= fft_kernel.freq_space();
     fft_data.inverse();
     fft_data.real_space() /= N;
-    timer.stop();
+    // timer.stop();
 
     assert_array_equal(fft_data.real_space(), result1);
 }

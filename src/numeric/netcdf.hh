@@ -119,7 +119,7 @@ namespace numeric
         variadic_enumerated_for_each(
             [&file, &dims, &data] (unsigned idx, std::string const &dimname)
         {
-            dims.push_back(file.addDim(dimname, data.shape(idx)));
+            dims.push_back(file.addDim(dimname, data.shape()[idx]));
         }, std::forward<DimArgs>(dim_args)...);
 
         NcVar nc_data = file.addVar(var_name, type_traits<T>::nc_type, dims);

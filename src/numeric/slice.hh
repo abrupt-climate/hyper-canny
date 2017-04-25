@@ -103,6 +103,16 @@ namespace HyperCanny { namespace numeric
 
             /*! \brief Select a row, reducing the dimensionality by one.
              */
+            Slice<D-1> sel(unsigned axis, size_t idx) const
+            {
+                size_t new_offset = offset + idx * stride[axis];
+                stride_t<D-1> new_stride = reduce_one(stride, axis);
+                shape_t<D-1> new_shape = reduce_one(shape, axis);
+                return Slice<D-1>(new_offset, new_shape, new_stride);
+            }
+
+            /*! \brief Select a row, reducing the dimensionality by one.
+             */
             template <unsigned axis>
             Slice<D-1> sel(size_t idx) const
             {
