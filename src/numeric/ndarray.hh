@@ -337,6 +337,11 @@ namespace numeric
             bool operator==(T const &other) const;
             template <typename T>
             bool operator!=(T const &other) const;
+
+            value_type const &operator[](shape_t<D> const &index) const
+            {
+                return this->container()[m_slice.flat_index(index)];
+            }
     };
     // }}}2
     // class NdArray {{{2

@@ -17,6 +17,7 @@
 #include <cmath>
 #include <random>
 #include "base.hh"
+#include "save_png.hh"
 #include "numeric/filters.hh"
 #include "numeric/rfft.hh"
 #include "numeric/support.hh"
@@ -104,7 +105,7 @@ TEST (Filters, Sobel3D)
     auto noise = std::bind(
         std::normal_distribution<float>(0.0, 1.0), std::mt19937());
 
-    numeric::shape_t<3> shape = {16, 16, 16};
+    numeric::shape_t<3> shape = {32, 48, 40};
     NdArray<float, 3> a1(shape);
     std::generate(a1.begin(), a1.end(), noise);
 
@@ -121,27 +122,28 @@ TEST (Filters, Sobel3D)
 
     fourier::RFFT<float, 3> fft_data(shape), fft_kernel(shape);
 
-    fft_data.real_space() = a1;
-    fft_kernel.real_space() = 0.0f;
-    auto kernel_view = fft_kernel.real_space().periodic_view({-1, -1, -1}, {3, 3, 3});
-    kernel_view = kernel1;
-    fft_kernel.forward();
-    fft_data.forward();
-    fft_data.freq_space() *= fft_kernel.freq_space();
-    fft_data.inverse();
-    fft_data.real_space() /= fft_data.size();
-    auto r1 = filter::sobel(a1, 2);
-    auto r2 = numeric::convolve(a1, kernel1);
-    auto r3 = filter::sobel(a1, 1);
-    auto r4 = numeric::convolve(a1, kernel2);
-
-    ASSERT_NEAR(r1.std(), r2.std(), 1e-4);
-    ASSERT_NEAR(r3.std(), r4.std(), 1e-4);
-    for (unsigned i = 1; i <= 10000; i *= 10)
+    auto apply_filter = [&fft_data, &fft_kernel] (auto const &data, auto const &kernel)
     {
-        ASSERT_NEAR(r1.container()[i], r2.container()[i], 1e-4);
-        ASSERT_NEAR(r3.container()[i], r4.container()[i], 1e-4);
-    }
+        fft_data.real_space() = data;
+        fft_kernel.real_space() = 0.0f;
 
-    // ASSERT_NEAR(r1.std(), fft_data.real_space().std(), 1e-4);
+        auto kernel_view = fft_kernel.real_space().periodic_view({-1, -1, -1}, {3, 3, 3});
+        kernel_view = kernel;
+
+        fft_kernel.forward();
+        fft_data.forward();
+        fft_data.freq_space() *= fft_kernel.freq_space();
+        fft_data.inverse();
+        fft_data.real_space() /= fft_data.size();
+    };
+
+    apply_filter(a1, kernel1);
+    auto r1 = filter::sobel(a1, 2);
+    ASSERT_NEAR(r1.std(), fft_data.real_space().std(), 1e-4);
+    assert_array_equal(r1, fft_data.real_space());
+
+    apply_filter(a1, kernel2);
+    auto r2 = filter::sobel(a1, 1);
+    ASSERT_NEAR(r2.std(), fft_data.real_space().std(), 1e-4);
+    assert_array_equal(r2, fft_data.real_space());
 }
