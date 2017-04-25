@@ -14,6 +14,7 @@
  */
 #include <gtest/gtest.h>
 #include <iostream>
+#include <cmath>
 #include "base.hh"
 #include "numeric/filters.hh"
 
