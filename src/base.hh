@@ -74,4 +74,12 @@ namespace HyperCanny
 
             virtual ~Exception() throw() {}
     };
+
+    class NotImplementedError: public Exception
+    {
+        public:
+            NotImplementedError()
+                : Exception("A function was called that is not implemented.")
+            {}
+    };
 }

@@ -221,7 +221,7 @@ namespace numeric
             const_iterator cbegin() const;
             const_iterator cend() const { return const_iterator(); }
 
-            virtual Container &container();
+            virtual Container &container() { throw NotImplementedError(); }
             virtual Container const &container() const { return m_container; }
 
             // TODO merge these operators with those in NdArrayImpl
@@ -453,7 +453,7 @@ namespace numeric
 
 
         private:
-            virtual Container &container();
+            virtual Container &container() { throw NotImplementedError(); }
     };
     // }}}2
     // }}}1
