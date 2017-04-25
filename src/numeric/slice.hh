@@ -53,7 +53,7 @@ namespace HyperCanny { namespace numeric
             /*! \brief Constructs a slice with all members given.
              */
             Slice(size_t offset, shape_t<D> const &shape, stride_t<D> const &stride):
-                offset(offset), size(stride[D-1] * shape[D-1]),
+                offset(offset), size(calc_size(shape)), // stride[D-1] * shape[D-1]),
                 shape(shape),
                 stride(stride)
             {}

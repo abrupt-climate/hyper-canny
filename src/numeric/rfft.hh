@@ -56,6 +56,8 @@ namespace fourier
                 m_data = ptr;
                 m_size = size;
             }
+
+            real_t operator[](size_t idx) { return m_data[idx]; }
     };
 
     template <typename real_t, unsigned D>
@@ -84,6 +86,8 @@ namespace fourier
             RFFT() = delete;
             RFFT(RFFT const &) = delete;
             RFFT &operator=(RFFT const &) = delete;
+
+            size_t size() const;
 
             explicit RFFT(shape_t<D> const &shape, unsigned flags=0, bool in_place=true);
             ~RFFT() noexcept;
@@ -137,7 +141,8 @@ namespace fourier
         // FFTW stores in row-major order, we use column-major order.
         if (m_in_place)
         {
-            m_real_buffer.set(fftw::alloc_real(m_real_slice.size), m_real_slice.size);
+            size_t real_size = m_real_slice.stride[D-1] * m_real_slice.shape[D-1];
+            m_real_buffer.set(fftw::alloc_real(real_size), m_real_slice.size);
             m_freq_buffer.set(
                 reinterpret_cast<std::complex<real_t> *>(
                     m_real_buffer.data()),
@@ -159,6 +164,12 @@ namespace fourier
             D, n, m_real_buffer.data(), reinterpret_cast<complex_t *>(m_freq_buffer.data()), flags);
         m_inverse_plan = fftw::inverse_plan(
             D, n, reinterpret_cast<complex_t *>(m_freq_buffer.data()), m_real_buffer.data(), flags);
+    }
+
+    template <typename real_t, unsigned D>
+    size_t RFFT<real_t, D>::size() const
+    {
+        return m_real_slice.size;
     }
 
     template <typename real_t, unsigned D>

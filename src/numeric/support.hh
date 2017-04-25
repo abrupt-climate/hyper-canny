@@ -38,10 +38,10 @@ namespace HyperCanny { namespace numeric
         return stride;
     }
 
-    template <unsigned D>
-    inline uint32_t calc_size(shape_t<D> const &shape)
+    template <unsigned long D>
+    inline size_t calc_size(shape_t<D> const &shape)
     {
-        uint32_t size = 1;
+        size_t size = 1;
         for (unsigned i = 0; i < shape.size(); ++i)
             size *= shape[i];
         return size;

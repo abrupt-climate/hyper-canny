@@ -28,6 +28,7 @@
 #include <initializer_list>
 #include <type_traits>
 #include <algorithm>
+#include <numeric>
 
 namespace HyperCanny {
 namespace numeric
@@ -289,6 +290,9 @@ namespace numeric
                 return ConstNdArrayView<value_type, Reduced, container_type>(
                         slice, this->container());
             }
+
+            value_type sum(value_type start = 0) const;
+            value_type std() const;
 
             template <unsigned axis>
             View reverse();
@@ -746,6 +750,30 @@ namespace numeric
     // }}}3
     // operators {{{3
     template <typename Derived>
+    typename array_traits<Derived>::value_type NdArrayImpl<Derived>::sum(
+            typename array_traits<Derived>::value_type start) const
+    {
+        return std::accumulate(begin(), end(), start);
+    }
+
+    template <typename Derived>
+    typename array_traits<Derived>::value_type NdArrayImpl<Derived>::std() const
+    {
+        value_type acc = 0, acc_sqr = 0;
+
+        std::for_each(begin(), end(),
+            [&acc, &acc_sqr] (auto x)
+        {
+            acc += x;
+            acc_sqr += x*x;
+        });
+
+        acc /= size();
+        acc_sqr /= size();
+        return sqrt(acc_sqr - acc*acc);
+    }
+
+    template <typename Derived>
     typename array_traits<Derived>::copy_type
     NdArrayImpl<Derived>::copy() const
     {
@@ -827,3 +855,4 @@ namespace numeric
     // }}}2 }}}1
 
 }} // namespace HyperCanny::numeric
+// vim: fdm=marker
