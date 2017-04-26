@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# This script creates a `meson.build` file in all relevant folders.
+# In the `src` directory it searches each subdirectory for `.cc` files,
+# adding them to a Meson `files` declaration. This makes each
+# directory in `src` into a module that can be accessed from the main
+# `meson.build`.
+# In the `test` directory each subdirectory except `gmock` and `gtest`
+# will result into a separate test executable.
+
 root=$(pwd)
 
 create_meson_file() {
