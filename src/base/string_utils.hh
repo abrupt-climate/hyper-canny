@@ -40,17 +40,12 @@ namespace HyperCanny
         T value;
         std::istringstream iss(s);
 
-        try {
-            iss >> value;
-            if (iss.fail()) {
-                return std::nullopt;
-            }
-            iss >> std::ws;
-            if (not iss.eof()) {
-                return std::nullopt;
-            }
+        iss >> value;
+        if (iss.fail()) {
+            return std::nullopt;
         }
-        catch (std::istream::failure const &e) {
+        iss >> std::ws;
+        if (not iss.eof()) {
             return std::nullopt;
         }
 

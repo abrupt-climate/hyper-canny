@@ -28,3 +28,16 @@ TEST (BaseLibrary, Exceptions)
     }
 }
 
+TEST (BaseLibrary, HeadsAndTails)
+{
+    std::vector<int> a = { 1, 2, 3, 4, 5 };
+
+    EXPECT_EQ(head(a), 1);
+    EXPECT_EQ(head(tail(a)), 2);
+
+    auto b = tail(tail(a));
+    std::vector<int> c = { 3, 4, 5 };
+    EXPECT_TRUE(std::equal(b.begin(), b.end(), c.begin()));
+    EXPECT_TRUE(std::equal(b.cbegin(), b.cend(), c.begin()));
+}
+
