@@ -23,6 +23,9 @@
 #include "format.hh"
 #include <string>
 #include <sstream>
+#include <type_traits>
+#include <limits>
+#include <iomanip>
 
 namespace HyperCanny
 {
@@ -42,6 +45,10 @@ namespace HyperCanny
             if (iss.fail()) {
                 return std::nullopt;
             }
+            iss >> std::ws;
+            if (not iss.eof()) {
+                return std::nullopt;
+            }
         }
         catch (std::istream::failure const &e) {
             return std::nullopt;
@@ -59,6 +66,12 @@ namespace HyperCanny
     std::string to_string(T const &value)
     {
         std::ostringstream out;
+
+        if (std::is_floating_point<T>::value)
+        {
+            out << std::setprecision(std::numeric_limits<T>::digits10 + 1);
+        }
+
         out << value;
         return out.str();
     }

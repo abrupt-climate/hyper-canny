@@ -15,6 +15,8 @@
 #include "base.hh"
 #include <gtest/gtest.h>
 
+#include <random>
+
 using namespace HyperCanny;
 
 TEST (BaseLibrary, StringSplit)
@@ -43,3 +45,31 @@ TEST (BaseLibrary, FromString)
     ASSERT_EQ(3.2f, from_string<float>("3.2"));
     ASSERT_EQ(from_string<int>("not-an-int"), std::nullopt);
 }
+
+TEST (BaseLibrary, ToString)
+{
+    ASSERT_EQ("3.4", to_string(3.4));
+    ASSERT_EQ("123456789", to_string(123456789L));
+}
+
+TEST (BaseLibrary, ToAndFromStringDouble)
+{
+    auto noise = std::bind(
+        std::normal_distribution<double>(0.0, 1.0), std::mt19937());
+
+    for (unsigned i = 0; i < 10000; ++i)
+    {
+        double x = noise();
+        ASSERT_NEAR(x, *from_string<double>(to_string(x)), 1e-10);
+    }
+}
+
+TEST (BaseLibrary, FromStringFail)
+{
+    EXPECT_FALSE(from_string<int>("hello"));
+    EXPECT_FALSE(from_string<int>("4.5e23"));
+    EXPECT_FALSE(from_string<float>("1q84"));
+    EXPECT_FALSE(from_string<int>(""));
+    EXPECT_TRUE(from_string<float>("4 \t  "));
+}
+
