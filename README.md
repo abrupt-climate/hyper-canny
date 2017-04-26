@@ -21,8 +21,7 @@ HyperCanny is written in C++14, OpenCL, using NetCDF as data container. Dependen
 Building
 --------
 
-HyperCanny uses [Meson](http://mesonbuild.com/), and [Ninja](https://ninja-build.org/).
-To build HyperCanny, run
+HyperCanny uses [Meson](http://mesonbuild.com/), and [Ninja](https://ninja-build.org/). To build HyperCanny, run
 
 ```bash
 > meson build           # you only need to run this once
