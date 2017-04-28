@@ -23,6 +23,7 @@
 #include "slice.hh"
 #include "nditerator.hh"
 #include "periodic_iterator.hh"
+#include "pointer_range.hh"
 
 #include <vector>
 #include <initializer_list>
@@ -47,7 +48,7 @@ namespace numeric
             virtual ~NdArrayBase() {}
 
             virtual Container &container() = 0;
-            virtual Container const &container() const = 0;
+            virtual Container const &const_container() const = 0;
 
             virtual shape_t<D> const &shape() const = 0;
     };
@@ -78,6 +79,7 @@ namespace numeric
         static constexpr unsigned dimension = D;
         using container_type = Container;
         using value_type = T;
+        using mask_type = NdArray<bool, D, std::vector<bool>>;
         using iterator = NdIterator<typename Container::iterator, D>;
         using const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
         using base_type = NdArrayBase<T, D, Container>;
@@ -95,6 +97,7 @@ namespace numeric
         using container_type = Container;
         using value_type = T;
         using iterator = NdIterator<typename Container::iterator, D>;
+        using mask_type = NdArray<bool, D, std::vector<bool>>;
         using const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
         using base_type = NdArrayBase<T, D, Container>;
         using reduced_view = NdArrayView<T, D-1, Container>;
@@ -115,6 +118,7 @@ namespace numeric
         using value_type = T;
         using iterator = ConstNdIterator<typename Container::const_iterator, D>;
         using const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
+        using mask_type = NdArray<bool, D, std::vector<bool>>;
         using base_type = NdArrayBase<T, D, Container>;
         using reduced_view = NdArrayView<T, D-1, Container>;
         using const_reduced_view = ConstNdArrayView<T, D-1, Container>;
@@ -169,7 +173,7 @@ namespace numeric
             const_iterator cend() const { return const_iterator(); }
 
             virtual Container &container() { return m_container; }
-            virtual Container const &container() const { return m_container; }
+            virtual Container const &const_container() const { return m_container; }
 
             // TODO merge these operators with those in NdArrayImpl
             template <typename T2>
@@ -223,7 +227,7 @@ namespace numeric
             const_iterator cend() const { return const_iterator(); }
 
             virtual Container &container() { throw NotImplementedError(); }
-            virtual Container const &container() const { return m_container; }
+            virtual Container const &const_container() const { return m_container; }
 
             // TODO merge these operators with those in NdArrayImpl
             template <typename T2>
@@ -288,7 +292,65 @@ namespace numeric
             view(Slice<Reduced> const &slice) const
             {
                 return ConstNdArrayView<value_type, Reduced, container_type>(
-                        slice, this->container());
+                        slice, this->const_container());
+            }
+
+            template <unsigned M>
+            NdArrayView<std::array<value_type,M>, D-1, PointerRange<std::array<value_type, M>>>
+            view_reduced_to()
+            {
+                if (stride()[0] != 1)
+                    throw Exception("Cannot create reduced pointer view; first dimension not contiguous.");
+                if (shape()[0] != M)
+                    throw Exception("Cannot create reduced pointer view; shapes do not match.");
+
+                Slice<D-1> reduced_slice;
+                reduced_slice.offset = 0;
+                for (unsigned k = 0; k < D-1; ++k)
+                {
+                    reduced_slice.stride[k] = stride()[k+1] / M;
+                    reduced_slice.shape[k] = shape()[k+1];
+                }
+
+                PointerRange<std::array<value_type, M>> reduced_range(
+                    reinterpret_cast<std::array<value_type, M> *>(
+                        this->container().data() + offset()),
+                    reduced_slice.size);
+
+                return NdArrayView<std::array<value_type, M>, D-1,
+                       PointerRange<std::array<value_type, M>>>(reduced_slice, reduced_range);
+            }
+
+            template <unsigned M>
+            ConstNdArrayView<std::array<value_type,M>, D-1, ConstPointerRange<std::array<value_type, M>>>
+            view_reduced_to() const
+            {
+                if (stride()[0] != 1)
+                    throw Exception("Cannot create reduced pointer view; first dimension not contiguous.");
+                if (shape()[0] != M)
+                    throw Exception("Cannot create reduced pointer view; shapes do not match.");
+
+                Slice<D-1> reduced_slice;
+                reduced_slice.offset = 0;
+                for (unsigned k = 0; k < D-1; ++k)
+                {
+                    reduced_slice.stride[k] = stride()[k+1] / M;
+                    reduced_slice.shape[k] = shape()[k+1];
+                }
+
+                ConstPointerRange<std::array<value_type, M>> reduced_range(
+                    reinterpret_cast<std::array<value_type, M> const *>(
+                        this->const_container().data() + offset()),
+                    reduced_slice.size);
+
+                return ConstNdArrayView<std::array<value_type, M>, D-1,
+                       ConstPointerRange<std::array<value_type, M>>>(reduced_slice, reduced_range);
+            }
+
+            template <typename Function>
+            void for_each(Function f)
+            {
+                std::for_each(begin(), end(), f);
             }
 
             value_type sum(value_type start = 0) const;
@@ -322,6 +384,9 @@ namespace numeric
                     stride_t<D> const &offset, shape_t<D> const &shape);
             typename array_traits<Derived>::const_periodic_view periodic_view(
                     stride_t<D> const &offset, shape_t<D> const &shape) const;
+            typename array_traits<Derived>::const_periodic_view const_periodic_view(
+                    stride_t<D> const &offset, shape_t<D> const &shape) const
+                { return periodic_view(offset, shape); }
 
             typename array_traits<Derived>::copy_type copy() const;
 
@@ -338,9 +403,24 @@ namespace numeric
             template <typename T>
             bool operator!=(T const &other) const;
 
-            value_type const &operator[](shape_t<D> const &index) const
+            value_type &operator[](size_t i)
             {
-                return this->container()[m_slice.flat_index(index)];
+                return this->container()[i];
+            }
+
+            value_type const &operator[](size_t i) const
+            {
+                return this->const_container()[i];
+            }
+
+            value_type &operator[](shape_t<D> const &i)
+            {
+                return this->container()[affine(offset(), stride(), i)];
+            }
+
+            value_type const &operator[](shape_t<D> const &i) const
+            {
+                return this->const_container()[affine(offset(), stride(), i)];
             }
     };
     // }}}2
@@ -391,11 +471,8 @@ namespace numeric
                 m_container.resize(this->m_slice.size);
             }
 
-            T &operator[](size_t i) { return m_container[i]; }
-            T const &operator[](size_t i) const { return m_container[i]; }
-
             virtual Container &container() { return m_container; }
-            virtual Container const &container() const { return m_container; }
+            virtual Container const &const_container() const { return m_container; }
 
             NdArray &operator=(NdArray const &other)
                 { return Base::operator=(other); }
@@ -421,7 +498,7 @@ namespace numeric
             {}
 
             virtual Container &container() { return m_container; }
-            virtual Container const &container() const { return m_container; }
+            virtual Container const &const_container() const { return m_container; }
 
             // using Base::operator=;
             NdArrayView &operator=(NdArrayView const &other) { return Base::operator=(other); }
@@ -456,7 +533,7 @@ namespace numeric
                 m_container(data)
             {}
 
-            virtual Container const &container() const { return m_container; }
+            virtual Container const &const_container() const { return m_container; }
 
             ConstNdArrayView &operator=(ConstNdArrayView const &other) = delete;
 
@@ -657,7 +734,7 @@ namespace numeric
     NdArrayImpl<Derived>::cbegin() const
     {
         return const_iterator(
-            std::cbegin(this->container()) + offset(), shape(), stride());
+            std::cbegin(this->const_container()) + offset(), shape(), stride());
     }
     template <typename Derived>
     typename array_traits<Derived>::const_iterator
@@ -678,21 +755,21 @@ namespace numeric
     template <typename Derived>
     template <unsigned axis>
     typename NdArrayImpl<Derived>::ConstView NdArrayImpl<Derived>::reverse() const
-        { return View(m_slice.reverse<axis>(), this->container()); }
+        { return View(m_slice.reverse<axis>(), this->const_container()); }
 
     template <typename Derived>
     typename NdArrayImpl<Derived>::View NdArrayImpl<Derived>::reverse_all()
         { return View(m_slice.reverse_all(), this->container()); }
     template <typename Derived>
     typename NdArrayImpl<Derived>::ConstView NdArrayImpl<Derived>::reverse_all() const
-        { return ConstView(m_slice.reverse_all(), this->container()); }
+        { return ConstView(m_slice.reverse_all(), this->const_container()); }
 
     template <typename Derived>
     typename NdArrayImpl<Derived>::View NdArrayImpl<Derived>::transpose()
         { return View(m_slice.transpose(), this->container()); }
     template <typename Derived>
     typename NdArrayImpl<Derived>::ConstView NdArrayImpl<Derived>::transpose() const
-        { return ConstView(m_slice.transpose(), this->container()); }
+        { return ConstView(m_slice.transpose(), this->const_container()); }
 
     template <typename Derived>
     template <unsigned axis>
@@ -703,7 +780,7 @@ namespace numeric
     template <unsigned axis>
     typename NdArrayImpl<Derived>::ConstView
     NdArrayImpl<Derived>::sub(size_t begin, size_t end, size_t step) const
-        { return ConstView(m_slice.sub<axis>(begin, end, step), this->container()); }
+        { return ConstView(m_slice.sub<axis>(begin, end, step), this->const_container()); }
 
     template <typename Derived>
     typename array_traits<Derived>::reduced_view
@@ -717,8 +794,8 @@ namespace numeric
     typename array_traits<Derived>::const_reduced_view
     NdArrayImpl<Derived>::sel(unsigned axis, size_t idx) const
     {
-        using return_type = typename array_traits<Derived>::reduced_view;
-        return return_type(m_slice.sel(axis, idx), this->container());
+        using return_type = typename array_traits<Derived>::const_reduced_view;
+        return return_type(m_slice.sel(axis, idx), this->const_container());
     }
 
     template <typename Derived>
@@ -732,7 +809,7 @@ namespace numeric
     typename array_traits<Derived>::const_reduced_view
     NdArrayImpl<Derived>::sel(size_t idx) const
         { return ConstNdArrayView<value_type, D-1, container_type>(
-                m_slice.sel<axis>(idx), this->container()); }
+                m_slice.sel<axis>(idx), this->const_container()); }
 
     template <typename Derived>
     typename array_traits<Derived>::periodic_view
@@ -750,7 +827,7 @@ namespace numeric
             typename NdArrayImpl<Derived>::shape_type const &shape) const
     {
         return ConstPeriodicNdArrayView<value_type, D, container_type>(
-            this->container(), slice(), offset, shape);
+            this->const_container(), slice(), offset, shape);
     }
     // }}}3
     // operators {{{3

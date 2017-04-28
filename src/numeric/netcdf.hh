@@ -123,7 +123,7 @@ namespace numeric
         }, std::forward<DimArgs>(dim_args)...);
 
         NcVar nc_data = file.addVar(var_name, type_traits<T>::nc_type, dims);
-        nc_data.putVar(data.container().data());
+        nc_data.putVar(data.const_container().data());
     }
 
     template <typename T, unsigned D>

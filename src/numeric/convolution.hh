@@ -20,12 +20,25 @@
 
 #include "base.hh"
 #include "ndarray.hh"
+#include "counter.hh"
 
 #include <numeric>
 #include <algorithm>
 
 namespace HyperCanny {
 namespace numeric {
+    /*! \brief N-dimensional convolution
+     *
+     * Computes the convolution by the definition
+     *
+     * \f[(f * g)[n]\ =\ \sum f[m]\, g[n - m]\f]
+     *
+     * taking the input array to be cyclic.
+     *
+     * \param data Input array.
+     * \param kernel Kernel array.
+     * \return Convolution of input array with kernel.
+     */
     template <typename C1, typename C2>
     typename array_traits<C1>::copy_type convolve(C1 const &data, C2 const &kernel)
     {
@@ -44,5 +57,48 @@ namespace numeric {
                 kernel.reverse_all().begin(), (real_t)0.0);
         }
         return result;
+    }
+
+    /*! \brief Convolve input in one direction with a one dimensional
+     *  kernel.
+     *
+     *  \param input Input array.
+     *  \param kernel Kernel array.
+     *  \param output Output array, should have same shape as input.
+     *  \param axis Axis over which to convolve.
+     */
+    template <typename Input, typename Kernel, typename Output>
+    Output &convolve_1d(
+            Input const &input,
+            Kernel const &kernel,
+            Output &output,
+            unsigned axis)
+    {
+        constexpr unsigned D = array_traits<Input>::dimension;
+
+        size_t length = input.shape()[axis];
+        int stride = input.stride()[axis];
+        auto orthogonal_slice = input.slice().sel(axis, 0);
+
+        for (NdCounter<D-1> i(orthogonal_slice.offset, orthogonal_slice);
+             i != NdCounter<D-1>(); ++i)
+        {
+            Slice<1> line(*i, {length}, {stride});
+            output.view(line) = convolve(input.view(line), kernel);
+        }
+
+        return output;
+    }
+
+    template <typename Input, typename Kernel>
+    typename array_traits<Input>::copy_type convolve_1d(
+            Input const &input,
+            Kernel const &kernel,
+            unsigned axis)
+    {
+        using output_type = typename array_traits<Input>::copy_type;
+        output_type output(input.shape());
+        convolve_1d(input, kernel, output, axis);
+        return output;
     }
 }} // HyperCanny::numeric
