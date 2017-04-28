@@ -77,15 +77,25 @@ namespace HyperCanny { namespace numeric
         return result;
     }
 
-	/*!
-	 * calculates a mod b, by the mathematical definition:
-	 * the C operator % does not give the right answer if a < 0
-	 */
-	inline int modulo(int a, int b)
-	{
-		if (a < 0) return b + (a % b);
-		else return (a % b);
-	}
+    template <typename T, unsigned long D, typename U>
+    inline std::array<T,D+1> extend_one(std::array<T,D> const &x, U y)
+    {
+        std::array<T,D+1> result;
+        for (unsigned j = 0; j < D; ++j)
+            result[j+1] = x[j];
+        result[0] = y;
+        return result;
+    }
+
+    /*!
+     * calculates a mod b, by the mathematical definition:
+     * the C operator % does not give the right answer if a < 0
+     */
+    inline int modulo(int a, int b)
+    {
+        if (a < 0) return b + (a % b);
+        else return (a % b);
+    }
 
     template <unsigned long D>
     inline shape_t<D> modulo(stride_t<D> const &a, shape_t<D> const &b)
@@ -98,7 +108,7 @@ namespace HyperCanny { namespace numeric
         return result;
     }
 
-    template <unsigned D>
+    template <unsigned long D>
     inline size_t affine(size_t offset, stride_t<D> const &stride, shape_t<D> const &index)
     {
         for (unsigned i = 0; i < D; ++i)
@@ -121,12 +131,10 @@ namespace HyperCanny { namespace numeric
 
         return semi_stride;
     }
-}
 
-template <typename T, unsigned long D>
-std::ostream &operator<<(std::ostream &out, std::array<T,D> const &x)
-{
-    return out << "(" << string_join(x, ", ") << ")";
-}
-
-}
+    template <typename T, unsigned long D>
+    std::ostream &operator<<(std::ostream &out, std::array<T,D> const &x)
+    {
+        return out << "(" << string_join(x, ", ") << ")";
+    }
+}}

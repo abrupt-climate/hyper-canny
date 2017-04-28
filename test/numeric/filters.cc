@@ -94,6 +94,61 @@ TEST (Filters, Sobel)
 
     assert_array_equal(filter::sobel(a1, 0), b1);
     assert_array_equal(filter::sobel(a1, 1), b2);
+
+    auto s1 = filter::sobel(a1);
+    auto c1 = s1.sel(0, 0).copy();
+    c1 /= 2;
+    assert_array_equal(c1, b1);
+
+    auto mask = filter::edge_thinning(s1);
+    for (bool b : mask)
+        std::clog << (b ? "#" : " ");
+}
+
+TEST (Filters, Gaussian2D)
+{
+    using numeric::NdArray;
+    namespace filter = numeric::filter;
+
+    NdArray<float, 2>
+        a1({9, 9}, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 1, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0 }),
+        b1({9, 9}, {
+            0.0, 0.0, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.0, 0.0,
+            0.0, 0.0, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.0, 0.0,
+            0.0, 0.0, 0.01214612, 0.02610994, 0.03369732, 0.02610994, 0.01214612, 0.0, 0.0,
+            0.0, 0.0, 0.02610994, 0.05612730, 0.07243752, 0.05612730, 0.02610994, 0.0, 0.0,
+            0.0, 0.0, 0.03369732, 0.07243752, 0.09348738, 0.07243752, 0.03369732, 0.0, 0.0,
+            0.0, 0.0, 0.02610994, 0.05612730, 0.07243752, 0.05612730, 0.02610994, 0.0, 0.0,
+            0.0, 0.0, 0.01214612, 0.02610994, 0.03369732, 0.02610994, 0.01214612, 0.0, 0.0,
+            0.0, 0.0, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.0, 0.0,
+            0.0, 0.0, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.0, 0.0 });
+
+    assert_array_equal(b1, filter::gaussian(a1, 2, 1.4));
+}
+
+TEST (Filters, GaussianNormalised)
+{
+    using numeric::NdArray;
+    namespace filter = numeric::filter;
+
+    auto noise = std::bind(
+        std::normal_distribution<double>(0.0, 1.0), std::mt19937());
+
+    NdArray<double, 3>
+        a1({80, 42, 23});
+    std::generate(a1.begin(), a1.end(), noise);
+
+    auto b1 = filter::gaussian(a1, 5, 2.0);
+    ASSERT_NEAR(a1.sum(), b1.sum(), 1e-6);
 }
 
 TEST (Filters, Sobel3D)

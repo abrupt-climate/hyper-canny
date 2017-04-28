@@ -24,7 +24,7 @@ namespace HyperCanny {
 namespace numeric
 {
     template <typename value_type=int>
-    class Counter: public std::iterator<std::forward_iterator_tag, value_type>
+    class Counter: public std::iterator<std::forward_iterator_tag, const value_type>
     {
         value_type i;
 

@@ -77,8 +77,9 @@ test_base = executable('test-base', src_base_files, test_base_files,
 test_numeric = executable('test-numeric',
     src_base_files, src_numeric_files, test_numeric_files,
     dependencies: [netcdf_dep, fftw_dep, fftwf_dep, libpng_dep],
+    cpp_args: ['-fopenmp'],
     link_with: [gtest_static],
-    link_args: ['-lpthread', '-lstdc++fs'],
+    link_args: ['-lpthread', '-lstdc++fs', '-fopenmp'],
     include_directories: [local_include, gtest_include])
 
 test('base system', test_base)

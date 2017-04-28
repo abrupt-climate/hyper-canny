@@ -44,6 +44,9 @@ namespace numeric
 
         public:
             using value_type = T;
+            using reference = typename std::iterator_traits<LinearIterator>::reference;
+            using pointer = typename std::iterator_traits<LinearIterator>::pointer;
+
             LinearIterator const &address() const { return m_address; }
             shape_t<D> const &index() const { return m_index; }
 
@@ -60,7 +63,7 @@ namespace numeric
                 , m_semi_stride(calc_semi_stride(slice.shape, slice.stride))
                 , m_end(false)
             {
-                m_index.fill(0);                
+                m_index.fill(0);
             }
 
             NdIteratorImpl(
@@ -146,12 +149,12 @@ namespace numeric
                 return *this;
             }
 
-            value_type &operator*() const
+            reference operator*() const
             {
                 return *m_address;
             }
 
-            value_type *operator->() const
+            pointer operator->() const
             {
                 return m_address.operator->();
             }
