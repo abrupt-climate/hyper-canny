@@ -17,7 +17,7 @@ project('Hyper Canny', 'cpp',
 subdir('src')
 subdir('test')
 
-add_global_arguments('-O3', language: 'cpp')
+# add_global_arguments('-O3', language: 'cpp')
 
 opencl_dep = dependency('OpenCL')
 libpng_dep = dependency('libpng')

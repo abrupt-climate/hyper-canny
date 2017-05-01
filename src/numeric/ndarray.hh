@@ -296,7 +296,7 @@ namespace numeric
             }
 
             template <unsigned M>
-            NdArrayView<std::array<value_type,M>, D-1, PointerRange<std::array<value_type, M>>>
+            NdArray<std::array<value_type,M>, D-1, PointerRange<std::array<value_type, M>>>
             view_reduced_to()
             {
                 if (stride()[0] != 1)
@@ -311,19 +311,20 @@ namespace numeric
                     reduced_slice.stride[k] = stride()[k+1] / M;
                     reduced_slice.shape[k] = shape()[k+1];
                 }
+                reduced_slice.size = calc_size(reduced_slice.shape);
 
                 PointerRange<std::array<value_type, M>> reduced_range(
                     reinterpret_cast<std::array<value_type, M> *>(
-                        this->container().data() + offset()),
+                        this->container().data()),
                     reduced_slice.size);
 
-                return NdArrayView<std::array<value_type, M>, D-1,
+                return NdArray<std::array<value_type, M>, D-1,
                        PointerRange<std::array<value_type, M>>>(reduced_slice, reduced_range);
             }
 
             template <unsigned M>
-            ConstNdArrayView<std::array<value_type,M>, D-1, ConstPointerRange<std::array<value_type, M>>>
-            view_reduced_to() const
+            NdArray<std::array<value_type,M>, D-1, ConstPointerRange<std::array<value_type, M>>>
+            const_view_reduced_to() const
             {
                 if (stride()[0] != 1)
                     throw Exception("Cannot create reduced pointer view; first dimension not contiguous.");
@@ -337,13 +338,14 @@ namespace numeric
                     reduced_slice.stride[k] = stride()[k+1] / M;
                     reduced_slice.shape[k] = shape()[k+1];
                 }
+                reduced_slice.size = calc_size(reduced_slice.shape);
 
                 ConstPointerRange<std::array<value_type, M>> reduced_range(
                     reinterpret_cast<std::array<value_type, M> const *>(
-                        this->const_container().data() + offset()),
+                        this->const_container().data()),
                     reduced_slice.size);
 
-                return ConstNdArrayView<std::array<value_type, M>, D-1,
+                return NdArray<std::array<value_type, M>, D-1,
                        ConstPointerRange<std::array<value_type, M>>>(reduced_slice, reduced_range);
             }
 
@@ -441,6 +443,11 @@ namespace numeric
         public:
             using View = NdArrayView<T,D,Container>;
             NdArray() {}
+
+            NdArray(Slice<D> const &slice, Container const &c):
+                NdArrayImpl<NdArray>(slice),
+                m_container(c)
+            {}
 
             explicit NdArray(shape_t<D> const &shape):
                 NdArrayImpl<NdArray>(shape),

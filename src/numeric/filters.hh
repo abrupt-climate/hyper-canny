@@ -123,7 +123,7 @@ namespace filter
         }
 
         auto vec_view = output.template view_reduced_to<D+1>();
-        vec_view.for_each(
+        std::for_each(vec_view.begin(), vec_view.end(),
             [] (auto &x)
         {
             real_t l2 = 0.0;
@@ -152,7 +152,7 @@ namespace filter
         using real_t = typename array_traits<Input>::value_type;
         constexpr unsigned D = array_traits<Input>::dimension - 1;
 
-        auto vec_view = input.template view_reduced_to<D + 1>();
+        auto vec_view = input.template const_view_reduced_to<D + 1>();
         shape_t<D> window_shape;
         window_shape.fill(3);
 
@@ -175,7 +175,15 @@ namespace filter
                 wib[k] = 1 + d;
             }
 
-            *outbit = (*i)[D] <= window[wia] && (*i)[D] <= window[wib];
+            real_t value = (*i)[D];
+            real_t a = window[wia];
+            real_t b = window[wib];
+
+            if (not std::isfinite(value))
+                *outbit = false;
+            else
+                *outbit = (value <= a) && (value <= b);
+            //*outbit = ((*i)[D] <= window[wia] && (*i)[D] <= window[wib]);
             ++outbit;
         }
 

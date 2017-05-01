@@ -101,8 +101,12 @@ TEST (Filters, Sobel)
     assert_array_equal(c1, b1);
 
     auto mask = filter::edge_thinning(s1);
-    for (bool b : mask)
-        std::clog << (b ? "#" : " ");
+    NdArray<bool, 2>
+        expected_mask({6, 3}, {
+            true, false, true, true, false, true,
+            true, false, true, true, false, true,
+            true, false, true, true, false, true });
+    EXPECT_EQ(mask, expected_mask);
 }
 
 TEST (Filters, Gaussian2D)

@@ -57,6 +57,7 @@ namespace numeric
             {}
 
             real_t *data() { return m_data; }
+            real_t const *data() const { return m_data; }
             real_t *begin() { return m_data; }
             real_t *end() { return m_data + m_size; }
             real_t const *cbegin() const { return m_data; }
