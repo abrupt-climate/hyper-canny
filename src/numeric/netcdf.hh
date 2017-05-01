@@ -147,7 +147,7 @@ namespace numeric
 
         shape_t<D> shape;
         for (unsigned i = 0; i < D; ++i)
-            shape[i] = nc_var.getDim(i).getSize();
+            shape[D-i-1] = nc_var.getDim(i).getSize();
 
         auto data = std::make_unique<NdArray<T,D>>(shape);
 

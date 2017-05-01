@@ -42,7 +42,7 @@ executable('cl-info', src_cl_info_files, src_base_files,
 
 executable('hyper-canny', src_hyper_canny_files,
     install: true,
-    dependencies : [opencl_dep, fftw_dep, fftwf_dep],
+    dependencies : [opencl_dep, fftw_dep, fftwf_dep, netcdf_dep],
     link_with: [cl_util_static],
     include_directories: local_include)
 

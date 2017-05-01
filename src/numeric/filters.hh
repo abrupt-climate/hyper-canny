@@ -22,6 +22,8 @@
 #include "counter.hh"
 #include "convolution.hh"
 
+#include <cmath>
+
 namespace HyperCanny {
 namespace numeric {
 namespace filter
@@ -188,5 +190,52 @@ namespace filter
         }
 
         return output;
+    }
+
+    template <typename Input, typename Mask>
+    NdArray<bool, array_traits<Input>::dimension - 1>
+    double_threshold(Input const &input, Mask const &mask, double lower, double upper)
+    {
+        using real_t = typename array_traits<Input>::value_type;
+        constexpr unsigned D = array_traits<Input>::dimension - 1;
+
+        if (reduce_one(input.shape(), 0) != mask.shape())
+        {
+            throw Exception("Shapes of input and mask do not match.");
+        }
+
+        auto values = input.sel(0, D);
+        NdArray<bool, D> output(values.shape());
+        NdArray<bool, D> done(values.shape());
+
+        // ╻ first pass: mark everything above upper threshold in,
+        // ╹ and everything below lower threshold out
+        auto value_it = values.begin();
+        auto mask_it = mask.begin();
+        auto done_it = done.begin();
+        for (auto output_it = output.begin(); output_it != output.end(); ++output_it, ++value_it, ++mask_it, ++done_it)
+        {
+            if (not *mask_it or (*value_it <= lower)) {
+                *output_it = false;
+                *done_it = true;
+                continue;
+            }
+            if (*value_it >= upper) {
+                *output_it = true;
+                *done_it = true;
+                continue;
+            }
+            *done_it = false;
+        }
+
+        // ╻╻ second pass: flood-fill lines using 3x3x... window
+        // ╹╹
+        for (auto done_it = done.begin(); done_it != done.end(); ++done_it)
+        {
+            if (*done_it)
+                continue;
+
+            auto index = done_it.index();
+        }
     }
 }}}
