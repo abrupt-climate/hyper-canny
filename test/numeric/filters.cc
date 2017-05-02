@@ -148,7 +148,7 @@ TEST (Filters, GaussianNormalised)
         std::normal_distribution<double>(0.0, 1.0), std::mt19937());
 
     NdArray<double, 3>
-        a1({80, 42, 23});
+        a1({16, 42, 23});
     std::generate(a1.begin(), a1.end(), noise);
 
     auto b1 = filter::gaussian(a1, 5, 2.0);
@@ -164,7 +164,7 @@ TEST (Filters, Sobel3D)
     auto noise = std::bind(
         std::normal_distribution<float>(0.0, 1.0), std::mt19937());
 
-    numeric::shape_t<3> shape = {32, 48, 40};
+    numeric::shape_t<3> shape = {32, 24, 40};
     NdArray<float, 3> a1(shape);
     std::generate(a1.begin(), a1.end(), noise);
 

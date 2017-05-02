@@ -114,12 +114,13 @@ namespace numeric
             DimArgs &&...dim_args)
     {
         using namespace netCDF;
+        static_assert(sizeof...(DimArgs) == D);
 
         std::vector<NcDim> dims;
         variadic_enumerated_for_each(
             [&file, &dims, &data] (unsigned idx, std::string const &dimname)
         {
-            dims.push_back(file.addDim(dimname, data.shape()[idx]));
+            dims.push_back(file.addDim(dimname, data.shape()[D-idx-1]));
         }, std::forward<DimArgs>(dim_args)...);
 
         NcVar nc_data = file.addVar(var_name, type_traits<T>::nc_type, dims);

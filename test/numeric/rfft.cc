@@ -48,7 +48,7 @@ TEST (Fourier, Convolution)
 
     constexpr unsigned D = 3;
     shape_t<D> data_shape   {  32,  16, 48 },
-              kernel_shape  {   7,   7,  7 };
+              kernel_shape  {   5,   5,  5 };
     size_t N = numeric::calc_size(data_shape);
 
     RFFT<float, D> fft_data(data_shape);
@@ -61,7 +61,7 @@ TEST (Fourier, Convolution)
 
     RFFT<float, D> fft_kernel(data_shape);
     fft_kernel.real_space() = 0.0f;
-    auto kernel_view = fft_kernel.real_space().periodic_view({-3, -3, -3}, kernel_shape);
+    auto kernel_view = fft_kernel.real_space().periodic_view({-2, -2, -2}, kernel_shape);
     kernel_view = kernel;
 
     fft_data.forward();
