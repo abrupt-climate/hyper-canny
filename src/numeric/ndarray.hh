@@ -79,6 +79,8 @@ namespace numeric
         static constexpr unsigned dimension = D;
         using container_type = Container;
         using value_type = T;
+        using reference = typename Container::reference;
+        using const_reference = typename Container::const_reference;
         using mask_type = NdArray<bool, D, std::vector<bool>>;
         using iterator = NdIterator<typename Container::iterator, D>;
         using const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
@@ -96,6 +98,8 @@ namespace numeric
         static constexpr unsigned dimension = D;
         using container_type = Container;
         using value_type = T;
+        using reference = typename Container::reference;
+        using const_reference = typename Container::const_reference;
         using iterator = NdIterator<typename Container::iterator, D>;
         using mask_type = NdArray<bool, D, std::vector<bool>>;
         using const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
@@ -116,6 +120,8 @@ namespace numeric
         static constexpr unsigned dimension = D;
         using container_type = Container;
         using value_type = T;
+        using reference = typename Container::reference;
+        using const_reference = typename Container::const_reference;
         using iterator = ConstNdIterator<typename Container::const_iterator, D>;
         using const_iterator = ConstNdIterator<typename Container::const_iterator, D>;
         using mask_type = NdArray<bool, D, std::vector<bool>>;
@@ -374,6 +380,14 @@ namespace numeric
             template <unsigned axis>
             ConstView sub(size_t begin, size_t end, size_t step = 1) const;
 
+            View sub(shape_t<D> const &sbegin, shape_t<D> const &sshape)
+            {
+                Slice<D> sub_slice(slice());
+                sub_slice.offset = slice().flat_index(sbegin);
+                sub_slice.shape = sshape;
+                return View(sub_slice, this->container());
+            }
+
             typename array_traits<Derived>::reduced_view sel(unsigned axis, size_t idx);
             typename array_traits<Derived>::const_reduced_view sel(unsigned axis, size_t idx) const;
 
@@ -405,22 +419,22 @@ namespace numeric
             template <typename T>
             bool operator!=(T const &other) const;
 
-            value_type &operator[](size_t i)
+            typename array_traits<Derived>::reference operator[](size_t i)
             {
                 return this->container()[i];
             }
 
-            value_type const &operator[](size_t i) const
+            typename array_traits<Derived>::const_reference operator[](size_t i) const
             {
                 return this->const_container()[i];
             }
 
-            value_type &operator[](shape_t<D> const &i)
+            typename array_traits<Derived>::reference operator[](shape_t<D> const &i)
             {
                 return this->container()[affine(offset(), stride(), i)];
             }
 
-            value_type const &operator[](shape_t<D> const &i) const
+            typename array_traits<Derived>::const_reference operator[](shape_t<D> const &i) const
             {
                 return this->const_container()[affine(offset(), stride(), i)];
             }

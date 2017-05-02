@@ -42,6 +42,33 @@ namespace numeric
             bool operator!=(Counter const &other) const { return i != other.i; }
     };
 
+    template <typename T=size_t>
+    class Integers
+    {
+        size_t m_size;
+
+        public:
+            using value_type = T;
+            using reference = T;
+            using const_reference = T;
+            using iterator = Counter<value_type>;
+            using const_iterator = iterator;
+
+            Integers(size_t size = 0)
+                : m_size(size)
+            {}
+
+            void resize(size_t size) { m_size = size; }
+            value_type operator[](size_t idx) const { return idx; }
+            iterator begin() const { return iterator(); }
+            iterator end() const { return iterator(m_size); }
+            iterator cbegin() const { return begin(); }
+            iterator cend() const { return end(); }
+    };
+
+    template <unsigned D>
+    using Grid = NdArray<size_t, D, Integers<size_t>>;
+
     template <unsigned D>
     class NdCounter: public ConstNdIterator<Counter<int>, D>
     {

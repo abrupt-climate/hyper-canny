@@ -39,7 +39,7 @@ if args.format == 'nc':
     root = Dataset('{}.nc'.format(name), 'w', format='NETCDF4')
     root.createDimension('x', shape[0])
     root.createDimension('y', shape[1])
-    var = root.createVariable(name, 'f4', ('y', 'x'))
+    var = root.createVariable(name, 'f4', ('y', 'x'), zlib=True, complevel=9)
     var[:] = data
     root.close()
     sys.exit()
