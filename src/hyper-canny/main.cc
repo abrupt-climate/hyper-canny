@@ -16,7 +16,7 @@
 #include "numeric/numeric.hh"
 #include "numeric/netcdf.hh"
 #include "numeric/ndarray.hh"
-#include "numeric/filters.hh"
+#include "numeric/canny.hh"
 
 #include <cstdlib>
 

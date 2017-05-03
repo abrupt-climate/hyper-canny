@@ -18,7 +18,7 @@
 #include <random>
 #include "base.hh"
 #include "save_png.hh"
-#include "numeric/filters.hh"
+#include "numeric/canny.hh"
 #include "numeric/rfft.hh"
 #include "numeric/support.hh"
 
@@ -43,13 +43,12 @@ template <typename T1, typename T2>
 inline void assert_array_equal(T1 const &a, T2 const &b, double eps=1e-4)
 {
     ASSERT_EQ(a.shape(), b.shape()) << "arrays should have same shape.";
-    ASSERT_TRUE(std::equal(a.begin(), a.end(), b.begin(),
-        [eps] (auto k, auto l)
+
+    auto ai = a.begin();
+    for (auto bi = b.begin(); bi != b.end(); ++bi, ++ai)
     {
-        return std::abs(k - l) < eps;
-    })) << "arrays should be equal to an abs error of " << eps << "\n"
-        << "first:\n" << a
-        << "second:\n" << b;
+        EXPECT_NEAR(*ai, *bi, eps);
+    }
 }
 
 TEST (Filters, Gradient)
