@@ -45,6 +45,15 @@ namespace HyperCanny { namespace numeric
         return x;
     }
 
+    template <unsigned long D>
+    shape_t<D> operator+(shape_t<D> const &a, shape_t<D> const &b)
+    {
+        shape_t<D> x;
+        for (unsigned i = 0; i < D; ++i)
+            x[i] = a[i] + b[i];
+        return x;
+    }
+
     template <typename T, unsigned long D, typename T2>
     std::array<T, D> operator/(std::array<T, D> const &a, T2 denom)
     {

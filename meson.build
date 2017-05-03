@@ -18,6 +18,7 @@ subdir('src')
 subdir('test')
 
 add_global_arguments('-O3', language: 'cpp')
+# add_global_link_arguments('-pg', language: 'cpp')
 
 opencl_dep = dependency('OpenCL')
 libpng_dep = dependency('libpng')
@@ -42,8 +43,10 @@ executable('cl-info', src_cl_info_files, src_base_files,
 
 executable('hyper-canny', src_hyper_canny_files,
     install: true,
-    dependencies : [opencl_dep, fftw_dep, fftwf_dep],
+    dependencies : [opencl_dep, fftw_dep, fftwf_dep, netcdf_dep],
+    cpp_args: ['-fopenmp'],
     link_with: [cl_util_static],
+    link_args: ['-fopenmp'],
     include_directories: local_include)
 
 executable('examples/hilbert', src_numeric_files,

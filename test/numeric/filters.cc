@@ -18,7 +18,7 @@
 #include <random>
 #include "base.hh"
 #include "save_png.hh"
-#include "numeric/filters.hh"
+#include "numeric/canny.hh"
 #include "numeric/rfft.hh"
 #include "numeric/support.hh"
 
@@ -43,13 +43,12 @@ template <typename T1, typename T2>
 inline void assert_array_equal(T1 const &a, T2 const &b, double eps=1e-4)
 {
     ASSERT_EQ(a.shape(), b.shape()) << "arrays should have same shape.";
-    ASSERT_TRUE(std::equal(a.begin(), a.end(), b.begin(),
-        [eps] (auto k, auto l)
+
+    auto ai = a.begin();
+    for (auto bi = b.begin(); bi != b.end(); ++bi, ++ai)
     {
-        return std::abs(k - l) < eps;
-    })) << "arrays should be equal to an abs error of " << eps << "\n"
-        << "first:\n" << a
-        << "second:\n" << b;
+        EXPECT_NEAR(*ai, *bi, eps);
+    }
 }
 
 TEST (Filters, Gradient)
@@ -101,8 +100,12 @@ TEST (Filters, Sobel)
     assert_array_equal(c1, b1);
 
     auto mask = filter::edge_thinning(s1);
-    for (bool b : mask)
-        std::clog << (b ? "#" : " ");
+    NdArray<bool, 2>
+        expected_mask({6, 3}, {
+            true, false, true, true, false, true,
+            true, false, true, true, false, true,
+            true, false, true, true, false, true });
+    EXPECT_EQ(mask, expected_mask);
 }
 
 TEST (Filters, Gaussian2D)
@@ -144,7 +147,7 @@ TEST (Filters, GaussianNormalised)
         std::normal_distribution<double>(0.0, 1.0), std::mt19937());
 
     NdArray<double, 3>
-        a1({80, 42, 23});
+        a1({16, 42, 23});
     std::generate(a1.begin(), a1.end(), noise);
 
     auto b1 = filter::gaussian(a1, 5, 2.0);
@@ -160,7 +163,7 @@ TEST (Filters, Sobel3D)
     auto noise = std::bind(
         std::normal_distribution<float>(0.0, 1.0), std::mt19937());
 
-    numeric::shape_t<3> shape = {32, 48, 40};
+    numeric::shape_t<3> shape = {32, 24, 40};
     NdArray<float, 3> a1(shape);
     std::generate(a1.begin(), a1.end(), noise);
 

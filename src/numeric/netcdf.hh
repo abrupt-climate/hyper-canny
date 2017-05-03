@@ -114,12 +114,15 @@ namespace numeric
             DimArgs &&...dim_args)
     {
         using namespace netCDF;
+        static_assert(
+            sizeof...(DimArgs) == D,
+            "Number of dimension arguments should match dimension of array.");
 
         std::vector<NcDim> dims;
         variadic_enumerated_for_each(
             [&file, &dims, &data] (unsigned idx, std::string const &dimname)
         {
-            dims.push_back(file.addDim(dimname, data.shape()[idx]));
+            dims.push_back(file.addDim(dimname, data.shape()[D-idx-1]));
         }, std::forward<DimArgs>(dim_args)...);
 
         NcVar nc_data = file.addVar(var_name, type_traits<T>::nc_type, dims);
@@ -147,7 +150,7 @@ namespace numeric
 
         shape_t<D> shape;
         for (unsigned i = 0; i < D; ++i)
-            shape[i] = nc_var.getDim(i).getSize();
+            shape[D-i-1] = nc_var.getDim(i).getSize();
 
         auto data = std::make_unique<NdArray<T,D>>(shape);
 

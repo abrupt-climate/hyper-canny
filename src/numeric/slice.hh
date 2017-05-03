@@ -74,6 +74,20 @@ namespace HyperCanny { namespace numeric
                 return flat_index(modulo(x, shape));
             }
 
+            shape_t<D> index(size_t i) const
+            {
+                i -= offset;
+
+                shape_t<D> x;
+                for (unsigned k = 0; k < D; ++k)
+                {
+                    unsigned j = D-k-1;
+                    x[j] = i / stride[j];
+                    i %= stride[j];
+                }
+                return x;
+            }
+
             /*! \brief Transpose the slice, by reversing the shape and stride.
              */
             Slice<D> transpose() const // reverse axes

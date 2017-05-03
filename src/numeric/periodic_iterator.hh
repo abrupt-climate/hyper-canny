@@ -26,18 +26,11 @@ namespace numeric {
     template <typename T>
     struct dimension {};
 
-    template <typename LinearIterator, unsigned D>
-    struct dimension<NdIterator<LinearIterator, D>>
+    template <typename LinearIterator, unsigned D, typename T>
+    struct dimension<NdIteratorImpl<LinearIterator, D, T>>
     {
         static constexpr unsigned value = D;
     };
-
-    template <typename LinearIterator, unsigned D>
-    struct dimension<ConstNdIterator<LinearIterator, D>>
-    {
-        static constexpr unsigned value = D;
-    };
-
 
     template <typename NdIterator>
     class PeriodicIterator: public std::iterator<std::forward_iterator_tag, typename NdIterator::value_type>
