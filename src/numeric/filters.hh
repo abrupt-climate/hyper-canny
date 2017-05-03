@@ -219,14 +219,15 @@ namespace filter
         auto output_shape = reduce_one(input.shape(), 0);
         NdArray<bool, D> output(output_shape);
 
-        // auto outbit = output.begin();
-        #pragma omp parallel
+        auto outbit = output.begin();
+        // #pragma omp parallel
         {
-            #pragma omp for nowait
-            for (size_t i = 0; i < vec_view.size(); ++i)
-            // for (auto i = vec_view.begin(); i != vec_view.end(); ++i)
+            // #pragma omp for nowait
+            // for (size_t i = 0; i < vec_view.size(); ++i)
+            for (auto i = vec_view.begin(); i != vec_view.end(); ++i)
             {
-                shape_t<D> index = vec_view.slice().index(i);
+                // shape_t<D> index = vec_view.slice().index(i);
+                shape_t<D> index = i.index();
                 stride_t<D> window_offset = index - window_shape / 2;
                 NdArray<real_t, D> window(window_shape);
                 window = input.sel(0, D).const_periodic_view(window_offset, window_shape);
@@ -234,21 +235,25 @@ namespace filter
                 shape_t<D> wia, wib;
                 for (unsigned k = 0; k < D; ++k)
                 {
-                    unsigned d = round(vec_view[i][k]);
+                    unsigned d = round((*i)[k]);
                     wia[k] = 1 - d;
                     wib[k] = 1 + d;
                 }
 
-                real_t value = vec_view[i][D];
+                real_t value = (*i)[D];
                 real_t a = window[wia];
                 real_t b = window[wib];
 
+                // #pragma omp critical
+                {
                 if (not std::isfinite(value))
-                    output[i] = false;
+                    *outbit = false;
                 else
-                    output[i] = (value <= a) && (value <= b);
+                    *outbit = (value <= a) && (value <= b);
+                    // output[i] = (value <= a) && (value <= b);
+                }
                 //*outbit = ((*i)[D] <= window[wia] && (*i)[D] <= window[wib]);
-                //++outbit;
+                ++outbit;
             }
         }
 

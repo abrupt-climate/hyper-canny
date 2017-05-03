@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     timer.start("Hysteresis threshold");
     auto thresholded_mask = filter::double_threshold(sobel_filtered, thinned_mask, 100.0, 200.0);
     timer.stop();
-    //print_array(thresholded_mask);
+    print_array(thresholded_mask);
 
     console.finish("done idling");
     return EXIT_SUCCESS;

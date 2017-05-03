@@ -114,7 +114,9 @@ namespace numeric
             DimArgs &&...dim_args)
     {
         using namespace netCDF;
-        static_assert(sizeof...(DimArgs) == D);
+        static_assert(
+            sizeof...(DimArgs) == D,
+            "Number of dimension arguments should match dimension of array.");
 
         std::vector<NcDim> dims;
         variadic_enumerated_for_each(
