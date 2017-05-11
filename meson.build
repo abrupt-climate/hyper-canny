@@ -51,7 +51,8 @@ executable('hyper-canny', src_hyper_canny_files,
 
 executable('examples/hilbert', src_numeric_files,
     'src/examples/hilbert/main.cc',
-    dependencies: [fftw_dep, fftwf_dep])
+    dependencies: [fftw_dep, fftwf_dep],
+    include_directories: local_include)
 
 executable('examples/hdf5-test', src_numeric_files, src_base_files,
     'src/examples/hdf5/main.cc',

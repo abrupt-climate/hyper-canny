@@ -18,9 +18,31 @@
  *  \brief Helper function to do generic iterations.
  */
 
+#include <utility>
+#include <functional>
+
 namespace HyperCanny
 {
-    /* generic string utilities ========================================== */
+    /*! \brief Contain begin and end iterators of any type.
+     */
+    template <typename Iterator>
+    class Span: public std::pair<Iterator, Iterator>
+    {
+        using Base = std::pair<Iterator, Iterator>;
+
+        public:
+            using value_type = typename Iterator::value_type;
+            using iterator = Iterator;
+            using const_iterator = Iterator;
+
+            using Base::Base;
+
+            Iterator begin() const { return this->first; }
+            Iterator end() const { return this->second; }
+            Iterator cbegin() const { return begin(); }
+            Iterator cend() const { return end(); }
+    };
+
     /*! \brief get the head of a range
      * \param r a ranged object (having begin and end methods)
      * \return reference to first element of the range.
@@ -59,4 +81,39 @@ namespace HyperCanny
      */
     template <typename T>
     Tail<T> tail(T const &a) { return Tail<T>(a); }
+
+    template <typename Iterator, typename To>
+    class SelectIterator: public Iterator
+    {
+        using From = typename Iterator::value_type;
+        std::function<To (From const &)> f;
+
+        public:
+            using value_type = To;
+            using reference = To;
+            using const_reference = To;
+
+            template <typename Fn>
+            SelectIterator(Fn _f, Iterator const &_i)
+                : Iterator(_i)
+                , f(_f)
+            {}
+
+            const_reference operator*() const
+            {
+                return f(Iterator::operator*());
+            }
+    };
+
+    template <typename Fn, typename Range>
+    auto select(Fn f, Range const &r)
+        -> Span<SelectIterator<typename Range::const_iterator, decltype(f(*r.begin()))>>
+    {
+        using iterator =
+            SelectIterator<typename Range::const_iterator, decltype(f(*r.begin()))>;
+
+        return Span<iterator>(
+            iterator(f, r.begin()),
+            iterator(f, r.end()));
+    }
 }

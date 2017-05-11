@@ -131,22 +131,15 @@ namespace numeric
 
     template <typename T, unsigned D>
     std::unique_ptr<NdArray<T,D>> netcdf_read_array(
-            netCDF::NcFile &file,
-            std::string const &var_name)
+            netCDF::NcVar &nc_var)
     {
         using namespace netCDF;
         Console::Log console;
 
-        NcVar nc_var = file.getVar(var_name);
-        if (nc_var.isNull())
-            throw Exception(format(
-                "NetCDF file does not contain requested variable: ", var_name));
-
         if (nc_var.getDimCount() != D)
             throw Exception(format(
-                "NetCDF variable ", var_name,
-                " does not have the expected number of ", D, " dimensions: ",
-                "got ", nc_var.getDimCount(), "."));
+                "NetCDF variable does not have the expected number of ",
+                D, " dimensions: got ", nc_var.getDimCount(), "."));
 
         shape_t<D> shape;
         for (unsigned i = 0; i < D; ++i)
@@ -165,5 +158,20 @@ namespace numeric
         }
 
         return std::move(data);
+    }
+
+    template <typename T, unsigned D>
+    std::unique_ptr<NdArray<T,D>> netcdf_read_array(
+            netCDF::NcFile &file,
+            std::string const &var_name)
+    {
+        using namespace netCDF;
+        NcVar nc_var = file.getVar(var_name);
+
+        if (nc_var.isNull())
+            throw Exception(format(
+                "NetCDF file does not contain requested variable: ", var_name));
+
+        return netcdf_read_array<T, D>(nc_var);
     }
 }}

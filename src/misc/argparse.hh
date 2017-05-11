@@ -23,6 +23,7 @@
 #include <sstream>
 #include <experimental/optional>
 #include <stdexcept>
+#include <map>
 #include "base.hh"
 
 namespace HyperCanny {
@@ -78,14 +79,39 @@ namespace argparse
 
     class Args
     {
+        std::string name_, description_;
         std::map<std::string, Option> option_;
         std::map<std::string, std::string> value_;
 
         public:
-            explicit Args(std::initializer_list<Option> const &options)
+            Args(
+                    std::string const &name,
+                    std::string const &description,
+                    std::initializer_list<Option> const &options)
+                : name_(name)
+                , description_(description)
             {
                 for (Option const &o : options)
                     option_[o.tag_] = o;
+            }
+
+            void usage(std::string const &name = "")
+            {
+                std::string pname = (name == "" ? name_ : name);
+                Console::Log console(
+                    format("\033[33m╒═\033[m usage: ", pname, " <options>"),
+                    "\033[33m│\033[m   ");
+                for (auto &s : string_split(description_, '\n'))
+                {
+                    console.msg(s);
+                }
+                console.msg();
+
+                for (auto &o : option_)
+                {
+                    console.msg(string_pad(o.first, 10), " ", o.second.description_);
+                }
+                console.finish("\033[33m╘═\033[m");
             }
 
             template <typename T>
@@ -102,6 +128,11 @@ namespace argparse
                     return *a;
                 else
                     return fallback;
+            }
+
+            void parse(int argc, char **argv)
+            {
+                parse(pointer_range<char *>(argv + 1, argc - 1));
             }
 
             template <typename Rng>
