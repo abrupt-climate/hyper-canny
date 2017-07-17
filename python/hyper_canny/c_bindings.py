@@ -76,9 +76,6 @@ def double_threshold(data, mask, a, b):
     output_data = np.zeros(output_shape, dtype='uint8')
     shape_array = np.array(output_shape, dtype='uint32')
 
-    print("double threshold dim: ", len(output_shape))
-    print("shape: ", output_shape)
-
     c_double_threshold(
         len(output_shape), shape_array.ctypes.data_as(POINTER(c_uint)),
         data.ctypes.data_as(POINTER(c_float)),
