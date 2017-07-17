@@ -456,6 +456,7 @@ namespace numeric
 
         public:
             using View = NdArrayView<T,D,Container>;
+
             NdArray() {}
 
             NdArray(Slice<D> const &slice, Container const &c):
@@ -772,11 +773,11 @@ namespace numeric
     template <typename Derived>
     template <unsigned axis>
     typename NdArrayImpl<Derived>::View NdArrayImpl<Derived>::reverse()
-        { return View(m_slice.reverse<axis>(), this->container()); }
+        { return View(m_slice.template reverse<axis>(), this->container()); }
     template <typename Derived>
     template <unsigned axis>
     typename NdArrayImpl<Derived>::ConstView NdArrayImpl<Derived>::reverse() const
-        { return View(m_slice.reverse<axis>(), this->const_container()); }
+        { return View(m_slice.template reverse<axis>(), this->const_container()); }
 
     template <typename Derived>
     typename NdArrayImpl<Derived>::View NdArrayImpl<Derived>::reverse_all()
@@ -796,12 +797,12 @@ namespace numeric
     template <unsigned axis>
     typename NdArrayImpl<Derived>::View
     NdArrayImpl<Derived>::sub(size_t begin, size_t end, size_t step)
-        { return View(m_slice.sub<axis>(begin, end, step), this->container()); }
+        { return View(m_slice.template sub<axis>(begin, end, step), this->container()); }
     template <typename Derived>
     template <unsigned axis>
     typename NdArrayImpl<Derived>::ConstView
     NdArrayImpl<Derived>::sub(size_t begin, size_t end, size_t step) const
-        { return ConstView(m_slice.sub<axis>(begin, end, step), this->const_container()); }
+        { return ConstView(m_slice.template sub<axis>(begin, end, step), this->const_container()); }
 
     template <typename Derived>
     typename array_traits<Derived>::reduced_view
@@ -824,13 +825,13 @@ namespace numeric
     typename array_traits<Derived>::reduced_view
     NdArrayImpl<Derived>::sel(size_t idx)
         { return NdArrayView<value_type, D-1, container_type>(
-                m_slice.sel<axis>(idx), this->container()); }
+                m_slice.template sel<axis>(idx), this->container()); }
     template <typename Derived>
     template <unsigned axis>
     typename array_traits<Derived>::const_reduced_view
     NdArrayImpl<Derived>::sel(size_t idx) const
         { return ConstNdArrayView<value_type, D-1, container_type>(
-                m_slice.sel<axis>(idx), this->const_container()); }
+                m_slice.template sel<axis>(idx), this->const_container()); }
 
     template <typename Derived>
     typename array_traits<Derived>::periodic_view
