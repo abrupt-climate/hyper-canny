@@ -26,6 +26,48 @@ c_double_threshold.argtypes = [
     c_uint, POINTER(c_uint), POINTER(c_float), POINTER(c_uint8),
     c_float, c_float, POINTER(c_uint8)]
 
+c_smooth_gaussian = libhypercanny.smooth_gaussian
+c_smooth_gaussian.argtypes = [
+    c_uint,
+    POINTER(c_uint), c_size_t, POINTER(c_int), c_size_t, POINTER(c_float),
+    POINTER(c_uint), c_size_t, POINTER(c_int), c_size_t, POINTER(c_float),
+    c_uint, c_float]
+
+
+def smooth_gaussian(data, n, sigma):
+    """Smooth with Gaussian kernel.
+
+    :param data: nd-Array of single precision floating point data.
+    :param n: Half kernel window size.
+    :param sigma: std dev of Gaussian kernel.
+    :return: nd-Array with smoothed data."""
+    shape = data.shape
+    stride = np.array(data.strides, dtype='int') // data.dtype.itemsize
+    offset = (data.ctypes.data - data.base.ctypes.data) // data.dtype.itemsize
+
+    outp = np.zeros(shape, dtype='float32')
+    out_stride = np.array(outp.strides, dtype='int') // outp.dtype.itemsize
+
+    c_smooth_gaussian(
+        len(data.shape),
+
+        data.ctypes.shape_as(c_uint),
+        c_size_t(offset),
+        stride.ctypes.data_as(POINTER(c_int)),
+        c_size_t(data.base.size),
+        data.ctypes.data_as(POINTER(c_float)),
+
+        outp.ctypes.shape_as(c_uint),
+        c_size_t(0),
+        out_stride.ctypes.data_as(POINTER(c_int)),
+        c_size_t(outp.size),
+        outp.ctypes.data_as(POINTER(c_float)),
+
+        c_uint(n),
+        c_float(sigma))
+
+    return outp
+
 
 def smooth_sobel(data, n, sigma):
     """Smooth Sobel operator.

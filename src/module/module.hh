@@ -22,6 +22,12 @@
 #include "numeric/convolution.hh"
 #include "numeric/canny.hh"
 
+extern "C" void smooth_gaussian(
+    unsigned dim,
+    unsigned *i_shape, size_t i_offset, int *i_stride, size_t i_size, float *input,
+    unsigned *o_shape, size_t o_offset, int *o_stride, size_t o_size, float *output,
+    unsigned filter_width, float sigma);
+
 extern "C" void smooth_sobel(
     unsigned dim, unsigned *shape, float *input, unsigned filter_width, float sigma, float *output);
 
