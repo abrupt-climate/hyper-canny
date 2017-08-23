@@ -16,30 +16,33 @@ from os import path
 from codecs import open
 from glob import glob
 import numpy
+from pathlib import Path
 
 
-c_source_files = glob("../src/base/*.cc") + glob("../src/module/*.cc")
+here = Path(__file__).parent
+src_dir = here.joinpath('src')
+
+c_source_files = [str(p) for p in src_dir.glob("base/*.cc")] \
+               + [str(p) for p in src_dir.glob("module/*.cc")]
 
 if has_cython:
     ext_modules = cythonize([Extension(
             "hyper_canny.chc",
             sources=c_source_files + ["hyper_canny/chc.pyx"],
-            include_dirs=[numpy.get_include()],
-            extra_compile_args=['-O3', '-I../src', '-I../include'],
+            include_dirs=[numpy.get_include(), './src', './include'],
+            extra_compile_args=['-O3'],
             language="c++")])
 else:
     ext_modules = [Extension(
             "hyper_canny.chc",
             sources=c_source_files + ["hyper_canny/chc.cpp"],
-            include_dirs=[numpy.get_include()],
-            extra_compile_args=['-O3', '-I../src', '-I../include'],
+            include_dirs=[numpy.get_include(), './src', './include'],
+            extra_compile_args=['-O3'],
             language="c++")]
 
 
-here = path.abspath(path.dirname(__file__))
-
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(here / 'README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
