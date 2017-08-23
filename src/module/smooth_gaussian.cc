@@ -36,6 +36,9 @@ void do_smooth_gaussian(
     std::copy(i_stride_p, i_stride_p + D, i_stride.rbegin());
     std::copy(o_stride_p, o_stride_p + D, o_stride.rbegin());
 
+    std::cerr << "smoothing: " << i_shape << ", " << i_offset << ", " << i_stride
+              << " out " << o_shape << ", " << o_offset << ", " << o_stride << std::endl;
+
     assert(i_shape == o_shape);
 
     using output_type = NdArray<real_t, D, pointer_range<real_t>>;
@@ -49,7 +52,8 @@ void do_smooth_gaussian(
     input_type input(
         input_slice, pointer_range<real_t>(input_p, i_size));
 
-    output = gaussian(input, n, sigma);
+    auto result = gaussian(input, n, sigma);
+    std::copy(result.begin(), result.end(), output.begin());
 }
 
 extern "C" void smooth_gaussian(

@@ -1,4 +1,4 @@
-from ctypes import (c_float, c_uint, c_uint8, POINTER, cdll, util)
+from ctypes import (c_float, c_uint, c_uint8, POINTER, cdll, util, c_size_t, c_int)
 import numpy as np
 
 libhypercanny_path = util.find_library("hyper-canny")
@@ -34,6 +34,13 @@ c_smooth_gaussian.argtypes = [
     c_uint, c_float]
 
 
+def raw(data):
+    if data.base is None:
+        return data
+    else:
+        return data.base
+
+
 def smooth_gaussian(data, n, sigma):
     """Smooth with Gaussian kernel.
 
@@ -43,7 +50,7 @@ def smooth_gaussian(data, n, sigma):
     :return: nd-Array with smoothed data."""
     shape = data.shape
     stride = np.array(data.strides, dtype='int') // data.dtype.itemsize
-    offset = (data.ctypes.data - data.base.ctypes.data) // data.dtype.itemsize
+    offset = (data.ctypes.data - raw(data).ctypes.data) // data.dtype.itemsize
 
     outp = np.zeros(shape, dtype='float32')
     out_stride = np.array(outp.strides, dtype='int') // outp.dtype.itemsize
@@ -54,7 +61,7 @@ def smooth_gaussian(data, n, sigma):
         data.ctypes.shape_as(c_uint),
         c_size_t(offset),
         stride.ctypes.data_as(POINTER(c_int)),
-        c_size_t(data.base.size),
+        c_size_t(raw(data).size),
         data.ctypes.data_as(POINTER(c_float)),
 
         outp.ctypes.shape_as(c_uint),
