@@ -19,6 +19,7 @@
  */
 
 #include "iterating.hh"
+#include "generator.hh"
 #include "optional.hh"
 #include "format.hh"
 #include <string>
@@ -26,6 +27,7 @@
 #include <type_traits>
 #include <limits>
 #include <iomanip>
+#include <memory>
 
 namespace HyperCanny
 {
@@ -91,14 +93,19 @@ namespace HyperCanny
         return out.str();
     }
 
+    inline std::string string_pad(std::string const &s, int n, char d=' ')
+    {
+        std::string result(n, d);
+        std::copy(s.begin(), s.end(), result.begin());
+        return result;
+    }
+
     /*! \brief Splits a string on a given delimiter.
      *  \param s Input string.
      *  \param d Delimiting character.
      *  \param inserter Output iterator for resulting strings.
      */
-    template <typename I>
-    void string_split(std::string const &s, char d, I inserter)
-    {
+    /*{
         size_t q = 0;
         while (q < s.length())
         {
@@ -117,5 +124,34 @@ namespace HyperCanny
                 ++inserter;
             }
         }
+    }*/
+
+    inline Span<Generator<std::string>> string_split(std::string const &s, char d)
+    {
+        auto q = std::make_shared<size_t>(0);
+        auto step_fn = [s, d, q] ()
+        {
+            if (*q >= s.length())
+                throw GeneratorExit();
+
+            size_t p = s.find_first_not_of(d, *q);
+            if (p == std::string::npos)
+                throw GeneratorExit();
+
+            *q = s.find_first_of(d, p);
+            if (*q == std::string::npos)
+                return s.substr(p, s.length() - p);
+
+            return s.substr(p, *q-p);
+        };
+
+        return make_generator(step_fn);
+    }
+
+    template <typename I>
+    void string_split(std::string const &s, char d, I inserter)
+    {
+        auto g = string_split(s, d);
+        std::copy(g.begin(), g.end(), inserter);
     }
 }

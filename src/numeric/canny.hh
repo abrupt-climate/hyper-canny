@@ -189,8 +189,11 @@ namespace filter {
      *  \param get_neighbours Function that finds neighbouring locations.
      *  \param start Starting location.
      */
-    template <typename Location, typename Predicate, typename Action, typename GetNeighbours>
-    void floodfill(Predicate predicate, Action action, GetNeighbours get_neighbours, Location const &start)
+    template <typename Location, typename Predicate,
+              typename Action, typename GetNeighbours>
+    void floodfill(
+            Predicate predicate, Action action,
+            GetNeighbours get_neighbours, Location const &start)
     {
         std::queue<Location> queue;
         queue.push(start);

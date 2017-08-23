@@ -25,6 +25,9 @@
 #include "base/string_utils.hh"
 #include "base/console.hh"
 #include "base/timer.hh"
+#include "base/generator.hh"
+#include "base/exceptions.hh"
+#include "base/pointer_range.hh"
 
 namespace HyperCanny
 {
@@ -55,31 +58,5 @@ namespace HyperCanny
             {
                 if (not restored) restore();
             }
-    };
-
-    /*! \brief Base exception for this project.
-     */
-    class Exception: public std::exception
-    {
-        std::string msg;
-
-        public:
-            explicit Exception(std::string const &msg):
-                msg(msg) {}
-
-            virtual char const *what() const throw()
-            {
-                return msg.c_str();
-            }
-
-            virtual ~Exception() throw() {}
-    };
-
-    class NotImplementedError: public Exception
-    {
-        public:
-            NotImplementedError()
-                : Exception("A function was called that is not implemented.")
-            {}
     };
 }

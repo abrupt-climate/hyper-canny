@@ -49,18 +49,27 @@ executable('hyper-canny', src_hyper_canny_files,
     link_args: ['-fopenmp'],
     include_directories: local_include)
 
-executable('examples/hilbert', src_numeric_files,
+executable('hilbert', src_numeric_files,
     'src/examples/hilbert/main.cc',
-    dependencies: [fftw_dep, fftwf_dep])
+    dependencies: [fftw_dep, fftwf_dep],
+    include_directories: local_include)
 
-executable('examples/hdf5-test', src_numeric_files, src_base_files,
+shared_library('hyper-canny', src_module_files, src_base_files,
+    install: true,
+    dependencies: [opencl_dep, netcdf_dep],
+    cpp_args: ['-fopenmp'],
+    link_with: [cl_util_static],
+    link_args: ['-fopenmp'],
+    include_directories: local_include)
+
+executable('hdf5-test', src_numeric_files, src_base_files,
     'src/examples/hdf5/main.cc',
     cpp_args: [h5_cflags],
     link_args: h5_libs,
     dependencies: [libpng_dep, fftw_dep, fftwf_dep],
     include_directories: local_include)
 
-executable('examples/netcdf-test', src_numeric_files, src_base_files,
+executable('netcdf-test', src_numeric_files, src_base_files,
     'src/examples/netcdf/main.cc',
     dependencies: [netcdf_dep, fftw_dep, fftwf_dep],
     include_directories: local_include)
