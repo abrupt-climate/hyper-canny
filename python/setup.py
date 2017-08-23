@@ -15,6 +15,7 @@ else:
 from os import path
 from codecs import open
 from glob import glob
+import numpy
 
 
 c_source_files = glob("../src/base/*.cc") + glob("../src/module/*.cc")
@@ -23,12 +24,14 @@ if has_cython:
     ext_modules = cythonize([Extension(
             "hyper_canny.chc",
             sources=c_source_files + ["hyper_canny/chc.pyx"],
+            include_dirs=[numpy.get_include()],
             extra_compile_args=['-O3', '-I../src', '-I../include'],
             language="c++")])
 else:
     ext_modules = [Extension(
-            "inverse_cdf.icdf",
+            "hyper_canny.chc",
             sources=c_source_files + ["hyper_canny/chc.cpp"],
+            include_dirs=[numpy.get_include()],
             extra_compile_args=['-O3', '-I../src', '-I../include'],
             language="c++")]
 
@@ -57,7 +60,9 @@ setup(
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Scientific/Engineering'],
 
-    install_requires=[],
+    install_requires=[
+            'numpy'
+        ],
     extras_require={
         'develop': [
             'pytest', 'pytest-cov', 'pep8', 'pyflakes', 'cython'
