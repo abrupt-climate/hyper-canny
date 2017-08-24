@@ -46,7 +46,7 @@ namespace HyperCanny
 
             static Console &get()
             {
-                if (not s_instance)
+                if (!s_instance)
                 {
                     s_instance.reset(new Console);
                 }
@@ -109,7 +109,7 @@ namespace HyperCanny
             template <typename ...Args>
             void finish(Args &&...args)
             {
-                if (not m_popped)
+                if (!m_popped)
                 {
                     m_console.pop(std::forward<Args>(args)...);
                     m_popped = true;

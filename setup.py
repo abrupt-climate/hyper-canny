@@ -30,14 +30,14 @@ if has_cython:
             "hyper_canny.chc",
             sources=c_source_files + ["hyper_canny/chc.pyx"],
             include_dirs=[numpy.get_include(), './src', './include'],
-            extra_compile_args=['-O3'],
+            extra_compile_args=['/O2', '/std:c++17'],
             language="c++")])
 else:
     ext_modules = [Extension(
             "hyper_canny.chc",
             sources=c_source_files + ["hyper_canny/chc.cpp"],
             include_dirs=[numpy.get_include(), './src', './include'],
-            extra_compile_args=['-O3'],
+            extra_compile_args=['/O2', '/std:c++17'],
             language="c++")]
 
 

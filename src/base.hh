@@ -56,7 +56,7 @@ namespace HyperCanny
 
             ~CaptureOutput()
             {
-                if (not restored) restore();
+                if (!restored) restore();
             }
     };
 }

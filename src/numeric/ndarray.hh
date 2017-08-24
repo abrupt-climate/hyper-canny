@@ -251,12 +251,9 @@ namespace numeric
     class NdArrayImpl: public array_traits<Derived>::base_type
     {
         using traits = array_traits<Derived>;
-        static constexpr unsigned D = traits::dimension;
-
-        protected:
-            Slice<D> m_slice;
 
         public:
+            static constexpr unsigned D = traits::dimension;
             using slice_type = Slice<D>;
             using stride_type = stride_t<D>;
             using shape_type = shape_t<D>;
@@ -267,6 +264,10 @@ namespace numeric
             using View = NdArrayView<value_type, D, container_type>;
             using ConstView = ConstNdArrayView<value_type, D, container_type>;
 
+        protected:
+            Slice<D> m_slice;
+
+        public:
             Slice<D> const &slice() const;
             size_t offset() const;
             shape_t<D> const &shape() const;
