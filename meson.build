@@ -10,14 +10,14 @@
 # using `cl_util_files`.
 
 project('Hyper Canny', 'cpp',
-    default_options : ['cpp_std=c++14'],
+#    default_options : ['cpp_std=c++14'],
     version : '0.0.1',
     license : 'Apache v2')
 
 subdir('src')
 subdir('test')
 
-add_global_arguments('-O3', language: 'cpp')
+add_global_arguments(['-O3', '-std=c++17'], language: 'cpp')
 # add_global_link_arguments('-pg', language: 'cpp')
 
 opencl_dep = dependency('OpenCL')
