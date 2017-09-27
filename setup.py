@@ -13,6 +13,7 @@ else:
     has_cython = True
 
 from os import path
+import os
 from codecs import open
 from glob import glob
 import numpy
@@ -25,19 +26,24 @@ src_dir = here.joinpath('src')
 c_source_files = [str(p) for p in src_dir.glob("base/*.cc")] \
                + [str(p) for p in src_dir.glob("module/*.cc")]
 
+if os.name == 'nt':
+    cflags = ['/O2', '/std:c++17']
+else:
+    cflags = ['-O2', '-std=c++17']
+
 if has_cython:
     ext_modules = cythonize([Extension(
             "hyper_canny.chc",
             sources=c_source_files + ["hyper_canny/chc.pyx"],
             include_dirs=[numpy.get_include(), './src', './include'],
-            extra_compile_args=['/O2', '/std:c++17'],
+            extra_compile_args=cflags,
             language="c++")])
 else:
     ext_modules = [Extension(
             "hyper_canny.chc",
             sources=c_source_files + ["hyper_canny/chc.cpp"],
             include_dirs=[numpy.get_include(), './src', './include'],
-            extra_compile_args=['/O2', '/std:c++17'],
+            extra_compile_args=cflags,
             language="c++")]
 
 
