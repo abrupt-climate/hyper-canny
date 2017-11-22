@@ -5,7 +5,7 @@ libhypercanny_path = util.find_library("hyper-canny")
 
 if not libhypercanny_path:
     libhypercanny_path = "libhyper-canny.so"
-    # raise RuntimeError("Could not find shared library 'hyper-canny'.")
+    raise RuntimeError("Could not find shared library 'hyper-canny'.")
 
 libhypercanny = cdll.LoadLibrary(libhypercanny_path)
 
