@@ -1,22 +1,19 @@
 [![Build Status](https://travis-ci.org/abrupt-climate/hyper-canny.svg?branch=master)](https://travis-ci.org/abrupt-climate/hyper-canny)
 [![codecov](https://codecov.io/gh/abrupt-climate/hyper-canny/branch/master/graph/badge.svg)](https://codecov.io/gh/abrupt-climate/hyper-canny)
+[![DOI](https://zenodo.org/badge/86834996.svg)](https://zenodo.org/badge/latestdoi/86834996)
 
 HyperCanny project
 ==================
 
-Doing Canny edge detection in higher dimensions. This doesn't do anything yet.
-
+Doing Canny edge detection in higher dimensions.
 
 Requirements
 ------------
 
-HyperCanny is written in C++14, OpenCL, using NetCDF as data container. Dependencies:
+HyperCanny is written in C++17, using NetCDF as data container. Dependencies:
 
-- GCC >= 5 or CLANG >= 3.4
+- GCC >= 6 or CLANG >= 4.0
 - [NetCDF-cxx4](https://github.com/Unidata/netcdf-cxx4)
-- [OpenCL](https://www.khronos.org/opencl/)
-- [FFTW3](http://www.fftw.org/)
-- [libpng](http://www.libpng.org/pub/png/libpng.html)
 
 Building
 --------
@@ -31,6 +28,15 @@ HyperCanny uses [Meson](http://mesonbuild.com/), and [Ninja](https://ninja-build
 To run the unit tests, follow up with `ninja test` in the `build` directory.
 
 Alternatively, there is a `Makefile` that runs these commands for you; this also allows for easier integration with some IDEs.
+
+Python module
+-------------
+
+The code also compiles into a Python module. From the project root run:
+
+```bash
+> pip install .
+```
 
 Testing / Development
 ---------------------
