@@ -48,7 +48,7 @@ else:
 
 
 # Get the long description from the README file
-with open(here / 'README.md', encoding='utf-8') as f:
+with open(str(here) / 'README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
