@@ -51,7 +51,7 @@ else:
 here2=str(here)
 print(here)
 print(here2)
-with open(here2 / 'README.md', encoding='utf-8') as f:
+with open(here2 + '/README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
