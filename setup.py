@@ -48,10 +48,12 @@ else:
 
 
 # Get the long description from the README file
-here2=str(here)
-print(here)
-print(here2)
-with open(here2 + '/README.md', encoding='utf-8') as f:
+
+## this would be needed for python2...:
+#here2=str(here)
+#with open(here2 + '/README.md', encoding='utf-8') as f:
+# but we use python3:
+with open(here / 'README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
